@@ -1,0 +1,11 @@
+subject_id,age,gender,cacs,total_cholesterol,hdl_cholesterol,systolic_bp,smoking_status,diabetes_status,bp_medication,ethnicity
+1,45,male,0,190,45,120,0,0,0,Caucasian
+2,52,female,125,210,55,135,1,0,1,African American
+3,38,male,0,180,40,110,0,0,0,Asian
+4,67,female,450,195,48,140,0,1,1,Hispanic
+5,59,male,89,205,42,125,1,0,0,Caucasian
+6,43,female,15,175,60,115,0,0,0,Asian
+7,61,male,234,220,38,150,1,1,1,African American
+8,49,female,0,185,52,118,0,0,0,Hispanic
+9,55,male,78,200,44,132,0,0,1,Caucasian
+10,47,female,23,192,58,122,0,0,0,Asian
