@@ -1,13 +1,13 @@
-import { ColumnMapping, EthnicityMapping } from '@/types/data';
+import type { ColumnMapping, EthnicityMapping } from '@/types/data';
 
-export interface PrepareDataRequest {
+export type PrepareDataRequest = {
   file_url: string;
   column_mappings: ColumnMapping;
   cholesterol_unit: 'mmol/L' | 'mg/dL';
   id_column?: string;
-}
+};
 
-export interface AnalyzeRequest {
+export type AnalyzeRequest = {
   prepared_data_id: string;
   settings: {
     risk_scores: string[];
@@ -21,21 +21,21 @@ export interface AnalyzeRequest {
     };
     min_scores: number;
   };
-}
+};
 
-export interface FileUploadResponse {
+export type FileUploadResponse = {
   url: string;
   path: string;
-}
+};
 
-export interface PrepareDataResponse {
+export type PrepareDataResponse = {
   success: boolean;
   prepared_data_id: string;
   preview: Record<string, unknown>[];
-}
+};
 
-export interface ApiError {
+export type ApiError = {
   success: false;
   error: string;
   details?: string;
-}
+};

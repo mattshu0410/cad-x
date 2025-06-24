@@ -16,7 +16,8 @@
       "Bash(npx tsc:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
-      "mcp__browser-tools__getConsoleLogs"
+      "mcp__browser-tools__getConsoleLogs",
+      "Bash(tsc --noEmit)"
     ]
   },
   "enableAllProjectMcpServers": true,

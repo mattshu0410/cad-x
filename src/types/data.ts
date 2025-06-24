@@ -1,12 +1,12 @@
-export interface UploadedFile {
+export type UploadedFile = {
   name: string;
   url: string;
   columns: string[];
   preview: Record<string, unknown>[];
   size: number;
-}
+};
 
-export interface ColumnMapping {
+export type ColumnMapping = {
   cacs: string;
   age: string;
   gender: string;
@@ -20,23 +20,23 @@ export interface ColumnMapping {
   family_history_ihd?: string;
   ethnicity?: string;
   subject_id?: string;
-}
+};
 
-export interface RequiredField {
+export type RequiredField = {
   key: string;
   label: string;
   description: string;
   required: boolean;
-}
+};
 
-export interface EthnicityMapping {
+export type EthnicityMapping = {
   [ethnicityValue: string]: {
-    ascvd: "white" | "african-american" | "other";
-    mesa: "white" | "african-american" | "chinese" | "hispanic";
+    ascvd: 'white' | 'african-american' | 'other';
+    mesa: 'white' | 'african-american' | 'chinese' | 'hispanic';
   };
-}
+};
 
-export interface DataRow {
+export type DataRow = {
   [key: string]: unknown;
   // Core required fields
   cacs?: number;
@@ -53,4 +53,4 @@ export interface DataRow {
   family_history_ihd?: number;
   ethnicity?: string;
   subject_id?: string;
-}
+};

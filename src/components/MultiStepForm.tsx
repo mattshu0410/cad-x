@@ -1,9 +1,9 @@
 'use client';
 
 import { useFormStore } from '@/lib/stores/formStore';
-import { FileUploader } from './forms/FileUploader';
 import { ColumnMapper } from './forms/ColumnMapper';
 import { EthnicityGrid } from './forms/EthnicityGrid';
+import { FileUploader } from './forms/FileUploader';
 import { SettingsForm } from './forms/SettingsForm';
 import { ThresholdSelector } from './forms/ThresholdSelector';
 

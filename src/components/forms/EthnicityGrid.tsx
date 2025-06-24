@@ -1,36 +1,36 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
+import type { EthnicityMapping } from '@/types/data';
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useDataStore } from "@/lib/stores/dataStore";
-import { useFormStore } from "@/lib/stores/formStore";
-import { EthnicityMapping } from "@/types/data";
+} from '@/components/ui/select';
+import { useDataStore } from '@/lib/stores/dataStore';
+import { useFormStore } from '@/lib/stores/formStore';
 
 const ASCVD_OPTIONS = [
-  { value: "white", label: "White" },
-  { value: "african-american", label: "African American" },
-  { value: "other", label: "Other" },
+  { value: 'white', label: 'White' },
+  { value: 'african-american', label: 'African American' },
+  { value: 'other', label: 'Other' },
 ];
 
 const MESA_OPTIONS = [
-  { value: "white", label: "White" },
-  { value: "african-american", label: "African American" },
-  { value: "chinese", label: "Chinese" },
-  { value: "hispanic", label: "Hispanic" },
+  { value: 'white', label: 'White' },
+  { value: 'african-american', label: 'African American' },
+  { value: 'chinese', label: 'Chinese' },
+  { value: 'hispanic', label: 'Hispanic' },
 ];
 
 export function EthnicityGrid() {
@@ -52,10 +52,10 @@ export function EthnicityGrid() {
       const unique = Array.from(
         new Set(
           uploadedFile.preview
-            .map((row) => row[ethnicityColumn])
-            .filter((val) => val !== null && val !== undefined && val !== "")
-            .map((val) => String(val).trim())
-        )
+            .map(row => row[ethnicityColumn])
+            .filter(val => val !== null && val !== undefined && val !== '')
+            .map(val => String(val).trim()),
+        ),
       );
       setUniqueEthnicities(unique);
 
@@ -63,8 +63,8 @@ export function EthnicityGrid() {
       const initialMappings: EthnicityMapping = {};
       unique.forEach((ethnicity) => {
         initialMappings[ethnicity] = {
-          ascvd: "other",
-          mesa: "white",
+          ascvd: 'other',
+          mesa: 'white',
         };
       });
       setMappings(initialMappings);
@@ -73,9 +73,9 @@ export function EthnicityGrid() {
 
   // Skip this step if no ethnicity column is mapped
   useEffect(() => {
-    console.warn("hasEthnicityColumn changed to:", hasEthnicityColumn);
+    console.warn('hasEthnicityColumn changed to:', hasEthnicityColumn);
     if (!hasEthnicityColumn && !hasSkippedRef.current) {
-      console.warn("no ethnicity column, completing step 3");
+      console.warn('no ethnicity column, completing step 3');
       hasSkippedRef.current = true;
       completeStep(3);
       nextStep();
@@ -87,21 +87,21 @@ export function EthnicityGrid() {
   }
 
   const handleAscvdChange = (ethnicity: string, value: string) => {
-    setMappings((prev) => ({
+    setMappings(prev => ({
       ...prev,
       [ethnicity]: {
         ...prev[ethnicity],
-        ascvd: value as "white" | "african-american" | "other",
+        ascvd: value as 'white' | 'african-american' | 'other',
       },
     }));
   };
 
   const handleMesaChange = (ethnicity: string, value: string) => {
-    setMappings((prev) => ({
+    setMappings(prev => ({
       ...prev,
       [ethnicity]: {
         ...prev[ethnicity],
-        mesa: value as "white" | "african-american" | "chinese" | "hispanic",
+        mesa: value as 'white' | 'african-american' | 'chinese' | 'hispanic',
       },
     }));
   };
@@ -113,7 +113,7 @@ export function EthnicityGrid() {
   };
 
   const isComplete = uniqueEthnicities.every(
-    (ethnicity) => mappings[ethnicity]?.ascvd && mappings[ethnicity]?.mesa
+    ethnicity => mappings[ethnicity]?.ascvd && mappings[ethnicity]?.mesa,
   );
 
   return (
@@ -129,7 +129,11 @@ export function EthnicityGrid() {
         </CardHeader>
         <CardContent>
           <div className="text-sm text-muted-foreground">
-            Found {uniqueEthnicities.length} unique ethnicity values in your
+            Found
+            {' '}
+            {uniqueEthnicities.length}
+            {' '}
+            unique ethnicity values in your
             data
           </div>
         </CardContent>
@@ -150,7 +154,7 @@ export function EthnicityGrid() {
             </div>
 
             {/* Data Rows */}
-            {uniqueEthnicities.map((ethnicity) => (
+            {uniqueEthnicities.map(ethnicity => (
               <div
                 key={ethnicity}
                 className="grid grid-cols-3 gap-4 p-4 border rounded-lg items-center"
@@ -160,14 +164,14 @@ export function EthnicityGrid() {
 
                 {/* ASCVD Select */}
                 <Select
-                  value={mappings[ethnicity]?.ascvd || "other"}
-                  onValueChange={(value) => handleAscvdChange(ethnicity, value)}
+                  value={mappings[ethnicity]?.ascvd || 'other'}
+                  onValueChange={value => handleAscvdChange(ethnicity, value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ASCVD_OPTIONS.map((option) => (
+                    {ASCVD_OPTIONS.map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -177,14 +181,14 @@ export function EthnicityGrid() {
 
                 {/* MESA Select */}
                 <Select
-                  value={mappings[ethnicity]?.mesa || "white"}
-                  onValueChange={(value) => handleMesaChange(ethnicity, value)}
+                  value={mappings[ethnicity]?.mesa || 'white'}
+                  onValueChange={value => handleMesaChange(ethnicity, value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MESA_OPTIONS.map((option) => (
+                    {MESA_OPTIONS.map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -215,13 +219,25 @@ export function EthnicityGrid() {
               <h4 className="font-medium mb-2">ACC/AHA ASCVD Categories:</h4>
               <ul className="space-y-1 text-muted-foreground">
                 <li>
-                  • <strong>White:</strong> Non-Hispanic White
+                  •
+                  {' '}
+                  <strong>White:</strong>
+                  {' '}
+                  Non-Hispanic White
                 </li>
                 <li>
-                  • <strong>African American:</strong> Non-Hispanic Black
+                  •
+                  {' '}
+                  <strong>African American:</strong>
+                  {' '}
+                  Non-Hispanic Black
                 </li>
                 <li>
-                  • <strong>Other:</strong> All other ethnicities
+                  •
+                  {' '}
+                  <strong>Other:</strong>
+                  {' '}
+                  All other ethnicities
                 </li>
               </ul>
             </div>
@@ -229,16 +245,32 @@ export function EthnicityGrid() {
               <h4 className="font-medium mb-2">MESA Categories:</h4>
               <ul className="space-y-1 text-muted-foreground">
                 <li>
-                  • <strong>White:</strong> Non-Hispanic White
+                  •
+                  {' '}
+                  <strong>White:</strong>
+                  {' '}
+                  Non-Hispanic White
                 </li>
                 <li>
-                  • <strong>African American:</strong> Non-Hispanic Black
+                  •
+                  {' '}
+                  <strong>African American:</strong>
+                  {' '}
+                  Non-Hispanic Black
                 </li>
                 <li>
-                  • <strong>Chinese:</strong> Chinese American
+                  •
+                  {' '}
+                  <strong>Chinese:</strong>
+                  {' '}
+                  Chinese American
                 </li>
                 <li>
-                  • <strong>Hispanic:</strong> Hispanic/Latino
+                  •
+                  {' '}
+                  <strong>Hispanic:</strong>
+                  {' '}
+                  Hispanic/Latino
                 </li>
               </ul>
             </div>

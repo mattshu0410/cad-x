@@ -1,13 +1,13 @@
-import { create } from "zustand";
-import { FormState } from "./types";
+import type { FormState } from './types';
+import { create } from 'zustand';
 
-interface FormStore extends FormState {
+type FormStore = {
   setCurrentStep: (step: number) => void;
   nextStep: () => void;
   previousStep: () => void;
   completeStep: (step: number) => void;
   resetForm: () => void;
-}
+} & FormState;
 
 export const useFormStore = create<FormStore>((set, get) => ({
   currentStep: 0,
@@ -20,25 +20,23 @@ export const useFormStore = create<FormStore>((set, get) => ({
   },
 
   setCurrentStep: (step: number) => {
-    console.warn("setting current step", step);
+    console.warn('setting current step', step);
     set({ currentStep: step });
   },
 
   nextStep: () => {
-    console.warn("nextStep called! Current step:", get().currentStep);
-    console.trace("nextStep call stack");
-    set((state) => ({
+    set(state => ({
       currentStep: Math.min(state.currentStep + 1, 6),
     }));
   },
 
   previousStep: () =>
-    set((state) => ({
+    set(state => ({
       currentStep: Math.max(state.currentStep - 1, 1),
     })),
 
   completeStep: (step: number) =>
-    set((state) => ({
+    set(state => ({
       completedSteps: new Set([...state.completedSteps, step]),
       canProceed: true,
     })),

@@ -1,8 +1,8 @@
+import type { SettingsState } from './types';
+import type { AnalysisSettings, CholesterolUnit, RiskRegion, RiskScore } from '@/types/settings';
 import { create } from 'zustand';
-import { SettingsState } from './types';
-import { AnalysisSettings, RiskScore, RiskRegion, CholesterolUnit } from '@/types/settings';
 
-interface SettingsStore extends SettingsState {
+type SettingsStore = {
   updateSettings: (settings: Partial<AnalysisSettings>) => void;
   setRiskScores: (scores: RiskScore[]) => void;
   setRiskRegion: (region: RiskRegion) => void;
@@ -10,7 +10,7 @@ interface SettingsStore extends SettingsState {
   setMinScores: (min: number) => void;
   setPercentileThresholds: (thresholds: Partial<AnalysisSettings['percentileThresholds']>) => void;
   resetSettings: () => void;
-}
+} & SettingsState;
 
 const defaultSettings: AnalysisSettings = {
   riskScores: ['frs'],
@@ -21,46 +21,46 @@ const defaultSettings: AnalysisSettings = {
     resilient: 20,
     reference_low: 40,
     reference_high: 60,
-    susceptible: 80
-  }
+    susceptible: 80,
+  },
 };
 
-export const useSettingsStore = create<SettingsStore>((set) => ({
+export const useSettingsStore = create<SettingsStore>(set => ({
   settings: defaultSettings,
 
   updateSettings: (newSettings: Partial<AnalysisSettings>) =>
-    set((state) => ({
-      settings: { ...state.settings, ...newSettings }
+    set(state => ({
+      settings: { ...state.settings, ...newSettings },
     })),
 
   setRiskScores: (scores: RiskScore[]) =>
-    set((state) => ({
-      settings: { ...state.settings, riskScores: scores }
+    set(state => ({
+      settings: { ...state.settings, riskScores: scores },
     })),
 
   setRiskRegion: (region: RiskRegion) =>
-    set((state) => ({
-      settings: { ...state.settings, riskRegion: region }
+    set(state => ({
+      settings: { ...state.settings, riskRegion: region },
     })),
 
   setCholesterolUnit: (unit: CholesterolUnit) =>
-    set((state) => ({
-      settings: { ...state.settings, cholesterolUnit: unit }
+    set(state => ({
+      settings: { ...state.settings, cholesterolUnit: unit },
     })),
 
   setMinScores: (min: number) =>
-    set((state) => ({
-      settings: { ...state.settings, minScores: min }
+    set(state => ({
+      settings: { ...state.settings, minScores: min },
     })),
 
   setPercentileThresholds: (thresholds: Partial<AnalysisSettings['percentileThresholds']>) =>
-    set((state) => ({
+    set(state => ({
       settings: {
         ...state.settings,
-        percentileThresholds: { ...state.settings.percentileThresholds, ...thresholds }
-      }
+        percentileThresholds: { ...state.settings.percentileThresholds, ...thresholds },
+      },
     })),
 
   resetSettings: () =>
-    set({ settings: defaultSettings })
+    set({ settings: defaultSettings }),
 }));

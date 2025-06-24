@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import type { PercentileThresholds } from '@/types/settings';
+import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
-import { useSettingsStore } from "@/lib/stores/settingsStore";
-import { useFormStore } from "@/lib/stores/formStore";
-import { PercentileThresholds } from "@/types/settings";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { useFormStore } from '@/lib/stores/formStore';
+import { useSettingsStore } from '@/lib/stores/settingsStore';
 
 export function ThresholdSelector() {
   const { settings, setPercentileThresholds } = useSettingsStore();
   const { nextStep, completeStep, previousStep } = useFormStore();
 
   const [thresholds, setThresholds] = useState<PercentileThresholds>(
-    settings.percentileThresholds
+    settings.percentileThresholds,
   );
 
   const [errors, setErrors] = useState<Partial<PercentileThresholds>>({});
@@ -64,9 +64,9 @@ export function ThresholdSelector() {
 
   const handleThresholdChange = (
     key: keyof PercentileThresholds,
-    value: number
+    value: number,
   ) => {
-    setThresholds((prev) => ({ ...prev, [key]: value }));
+    setThresholds(prev => ({ ...prev, [key]: value }));
   };
 
   const handleNext = () => {
@@ -82,29 +82,29 @@ export function ThresholdSelector() {
   const getVisualizationData = () => {
     const segments = [
       {
-        label: "Resilient",
+        label: 'Resilient',
         value: thresholds.resilient,
-        color: "bg-green-500",
+        color: 'bg-green-500',
       },
       {
-        label: "Other",
+        label: 'Other',
         value: thresholds.reference_low - thresholds.resilient,
-        color: "bg-gray-400",
+        color: 'bg-gray-400',
       },
       {
-        label: "Reference",
+        label: 'Reference',
         value: thresholds.reference_high - thresholds.reference_low,
-        color: "bg-blue-500",
+        color: 'bg-blue-500',
       },
       {
-        label: "Other",
+        label: 'Other',
         value: thresholds.susceptible - thresholds.reference_high,
-        color: "bg-gray-400",
+        color: 'bg-gray-400',
       },
       {
-        label: "Susceptible",
+        label: 'Susceptible',
         value: 100 - thresholds.susceptible,
-        color: "bg-red-500",
+        color: 'bg-red-500',
       },
     ];
     return segments;
@@ -144,9 +144,8 @@ export function ThresholdSelector() {
               <Label className="text-sm w-8">0%</Label>
               <Slider
                 value={[thresholds.resilient]}
-                onValueChange={(value) =>
-                  handleThresholdChange("resilient", value[0])
-                }
+                onValueChange={value =>
+                  handleThresholdChange('resilient', value[0])}
                 max={100}
                 step={1}
                 className="flex-1"
@@ -154,12 +153,11 @@ export function ThresholdSelector() {
               <Input
                 type="number"
                 value={thresholds.resilient}
-                onChange={(e) =>
+                onChange={e =>
                   handleThresholdChange(
-                    "resilient",
-                    parseInt(e.target.value) || 0
-                  )
-                }
+                    'resilient',
+                    Number.parseInt(e.target.value) || 0,
+                  )}
                 className="w-20"
                 min={0}
                 max={100}
@@ -187,12 +185,11 @@ export function ThresholdSelector() {
                   <Input
                     type="number"
                     value={thresholds.reference_low}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleThresholdChange(
-                        "reference_low",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
+                        'reference_low',
+                        Number.parseInt(e.target.value) || 0,
+                      )}
                     className="w-20"
                     min={0}
                     max={100}
@@ -212,12 +209,11 @@ export function ThresholdSelector() {
                   <Input
                     type="number"
                     value={thresholds.reference_high}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleThresholdChange(
-                        "reference_high",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
+                        'reference_high',
+                        Number.parseInt(e.target.value) || 0,
+                      )}
                     className="w-20"
                     min={0}
                     max={100}
@@ -245,12 +241,11 @@ export function ThresholdSelector() {
               <Input
                 type="number"
                 value={thresholds.susceptible}
-                onChange={(e) =>
+                onChange={e =>
                   handleThresholdChange(
-                    "susceptible",
-                    parseInt(e.target.value) || 0
-                  )
-                }
+                    'susceptible',
+                    Number.parseInt(e.target.value) || 0,
+                  )}
                 className="w-20"
                 min={0}
                 max={100}
@@ -258,9 +253,8 @@ export function ThresholdSelector() {
               <Label className="text-sm">%</Label>
               <Slider
                 value={[thresholds.susceptible]}
-                onValueChange={(value) =>
-                  handleThresholdChange("susceptible", value[0])
-                }
+                onValueChange={value =>
+                  handleThresholdChange('susceptible', value[0])}
                 max={100}
                 step={1}
                 className="flex-1"
@@ -289,14 +283,17 @@ export function ThresholdSelector() {
             <div className="relative h-12 rounded-lg overflow-hidden border">
               {getVisualizationData().map((segment, index) => {
                 let leftPosition = 0;
-                if (index === 0) leftPosition = 0; // Resilient starts at 0
-                else if (index === 1) leftPosition = thresholds.resilient;
-                // First Other starts after Resilient
-                else if (index === 2) leftPosition = thresholds.reference_low;
-                // Reference starts at reference_low
-                else if (index === 3) leftPosition = thresholds.reference_high;
-                // Second Other starts after Reference
-                else leftPosition = thresholds.susceptible; // Susceptible starts at susceptible threshold
+                if (index === 0) {
+                  leftPosition = 0;
+                } else if (index === 1) {
+                  leftPosition = thresholds.resilient;
+                } else if (index === 2) {
+                  leftPosition = thresholds.reference_low;
+                } else if (index === 3) {
+                  leftPosition = thresholds.reference_high;
+                } else {
+                  leftPosition = thresholds.susceptible;
+                }
 
                 return (
                   <div
@@ -308,7 +305,7 @@ export function ThresholdSelector() {
                     }}
                   >
                     <div className="flex items-center justify-center h-full text-white text-sm font-medium">
-                      {segment.value > 10 ? segment.label : ""}
+                      {segment.value > 10 ? segment.label : ''}
                     </div>
                   </div>
                 );
@@ -317,10 +314,22 @@ export function ThresholdSelector() {
 
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>0%</span>
-              <span>{thresholds.resilient}%</span>
-              <span>{thresholds.reference_low}%</span>
-              <span>{thresholds.reference_high}%</span>
-              <span>{thresholds.susceptible}%</span>
+              <span>
+                {thresholds.resilient}
+                %
+              </span>
+              <span>
+                {thresholds.reference_low}
+                %
+              </span>
+              <span>
+                {thresholds.reference_high}
+                %
+              </span>
+              <span>
+                {thresholds.susceptible}
+                %
+              </span>
               <span>100%</span>
             </div>
 
@@ -329,23 +338,25 @@ export function ThresholdSelector() {
                 <div className="w-4 h-4 bg-green-500 mx-auto rounded mb-1"></div>
                 <div>Resilient</div>
                 <div className="text-muted-foreground">
-                  {thresholds.resilient}%
+                  {thresholds.resilient}
+                  %
                 </div>
               </div>
               <div>
                 <div className="w-4 h-4 bg-blue-500 mx-auto rounded mb-1"></div>
                 <div>Reference</div>
                 <div className="text-muted-foreground">
-                  {thresholds.reference_high - thresholds.reference_low}%
+                  {thresholds.reference_high - thresholds.reference_low}
+                  %
                 </div>
               </div>
               <div>
                 <div className="w-4 h-4 bg-gray-400 mx-auto rounded mb-1"></div>
                 <div>Other</div>
                 <div className="text-muted-foreground">
-                  {thresholds.reference_low -
-                    thresholds.resilient +
-                    (thresholds.susceptible - thresholds.reference_high)}
+                  {thresholds.reference_low
+                    - thresholds.resilient
+                    + (thresholds.susceptible - thresholds.reference_high)}
                   %
                 </div>
               </div>
@@ -353,7 +364,8 @@ export function ThresholdSelector() {
                 <div className="w-4 h-4 bg-red-500 mx-auto rounded mb-1"></div>
                 <div>Susceptible</div>
                 <div className="text-muted-foreground">
-                  {100 - thresholds.susceptible}%
+                  {100 - thresholds.susceptible}
+                  %
                 </div>
               </div>
             </div>

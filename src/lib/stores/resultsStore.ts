@@ -1,17 +1,17 @@
+import type { ResultsState } from './types';
+import type { AnalysisResult, AnalysisSummary, PlotData } from '@/types/analysis';
 import { create } from 'zustand';
-import { ResultsState } from './types';
-import { AnalysisResult, AnalysisSummary, PlotData } from '@/types/analysis';
 
-interface ResultsStore extends ResultsState {
+type ResultsStore = {
   setResults: (results: AnalysisResult[]) => void;
   setPlots: (plots: PlotData) => void;
   setSummary: (summary: AnalysisSummary) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearResults: () => void;
-}
+} & ResultsState;
 
-export const useResultsStore = create<ResultsStore>((set) => ({
+export const useResultsStore = create<ResultsStore>(set => ({
   results: null,
   plots: null,
   summary: null,
@@ -39,6 +39,6 @@ export const useResultsStore = create<ResultsStore>((set) => ({
       plots: null,
       summary: null,
       isLoading: false,
-      error: null
-    })
+      error: null,
+    }),
 }));

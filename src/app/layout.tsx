@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { QueryProvider } from "@/lib/queries/provider";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import { QueryProvider } from '@/lib/queries/provider';
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "BioHEART Resilience Calculator",
-  description: "Calculate cardiovascular resilience scores and identify resilient and susceptible individuals",
+  title: 'BioHEART Resilience Calculator',
+  description: 'Calculate cardiovascular resilience scores and identify resilient and susceptible individuals',
 };
 
 export default function RootLayout({

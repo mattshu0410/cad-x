@@ -16,7 +16,7 @@ const steps = [
 
 export function StepperNavigation() {
   const { currentStep, completedSteps } = useFormStore();
-  
+
   const progress = ((completedSteps.size) / steps.length) * 100;
 
   return (
@@ -39,30 +39,30 @@ export function StepperNavigation() {
               <div className="flex items-center">
                 <Badge
                   variant={
-                    isCompleted 
-                      ? "default" 
-                      : isCurrent 
-                        ? "secondary" 
-                        : "outline"
+                    isCompleted
+                      ? 'default'
+                      : isCurrent
+                        ? 'secondary'
+                        : 'outline'
                   }
                   className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium",
+                    'h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium',
                     {
-                      "bg-primary text-primary-foreground": isCompleted,
-                      "bg-accent text-accent-foreground border-accent": isCurrent,
-                      "bg-muted text-muted-foreground": !isAccessible && !isCurrent,
-                    }
+                      'bg-primary text-primary-foreground': isCompleted,
+                      'bg-accent text-accent-foreground border-accent': isCurrent,
+                      'bg-muted text-muted-foreground': !isAccessible && !isCurrent,
+                    },
                   )}
                 >
-                  {isCompleted ? "✓" : step.id}
+                  {isCompleted ? '✓' : step.id}
                 </Badge>
-                
+
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div 
+                  <div
                     className={cn(
-                      "h-0.5 w-12 ml-2",
-                      isCompleted ? "bg-primary" : "bg-muted"
+                      'h-0.5 w-12 ml-2',
+                      isCompleted ? 'bg-primary' : 'bg-muted',
                     )}
                   />
                 )}
@@ -71,9 +71,10 @@ export function StepperNavigation() {
               {/* Step Label */}
               <div className="text-center">
                 <div className={cn(
-                  "text-sm font-medium",
-                  isCurrent ? "text-foreground" : "text-muted-foreground"
-                )}>
+                  'text-sm font-medium',
+                  isCurrent ? 'text-foreground' : 'text-muted-foreground',
+                )}
+                >
                   {step.label}
                 </div>
                 <div className="text-xs text-muted-foreground hidden md:block">

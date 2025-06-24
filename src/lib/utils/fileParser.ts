@@ -1,20 +1,20 @@
-import Papa from "papaparse";
+import Papa from 'papaparse';
 
-interface ParsedFileData {
+type ParsedFileData = {
   columns: string[];
   preview: Record<string, unknown>[];
-}
+};
 
 export async function parseFile(file: File): Promise<ParsedFileData> {
-  const fileExtension = file.name.split(".").pop()?.toLowerCase();
+  const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
-  if (fileExtension === "csv") {
+  if (fileExtension === 'csv') {
     return parseCSV(file);
-  } else if (fileExtension === "xlsx" || fileExtension === "xls") {
+  } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
     return parseExcel();
   } else {
     throw new Error(
-      "Unsupported file format. Please upload CSV or Excel files."
+      'Unsupported file format. Please upload CSV or Excel files.',
     );
   }
 }
@@ -29,14 +29,14 @@ async function parseCSV(file: File): Promise<ParsedFileData> {
       complete: (results) => {
         if (results.errors.length > 0) {
           const errorMessage = results.errors
-            .map((err) => err.message)
-            .join(", ");
+            .map(err => err.message)
+            .join(', ');
           reject(new Error(`CSV parsing error: ${errorMessage}`));
           return;
         }
 
         if (!results.data || results.data.length === 0) {
-          reject(new Error("No data found in the CSV file"));
+          reject(new Error('No data found in the CSV file'));
           return;
         }
 
@@ -44,7 +44,7 @@ async function parseCSV(file: File): Promise<ParsedFileData> {
         const columns = Object.keys(results.data[0] as Record<string, unknown>);
 
         if (columns.length === 0) {
-          reject(new Error("No columns found in the CSV file"));
+          reject(new Error('No columns found in the CSV file'));
           return;
         }
 
@@ -64,6 +64,6 @@ async function parseExcel(): Promise<ParsedFileData> {
   // For now, provide a fallback that suggests converting to CSV
   // In production, you would use a library like xlsx to parse Excel files
   throw new Error(
-    "Excel file parsing is not yet implemented. Please convert your file to CSV format and try again."
+    'Excel file parsing is not yet implemented. Please convert your file to CSV format and try again.',
   );
 }

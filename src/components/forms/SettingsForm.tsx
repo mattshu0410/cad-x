@@ -1,41 +1,41 @@
-"use client";
+'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { AnalysisSettings, RiskRegion, RiskScore } from '@/types/settings';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Slider } from "@/components/ui/slider";
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { useSettingsStore } from "@/lib/stores/settingsStore";
-import { useFormStore } from "@/lib/stores/formStore";
-import { useDataStore } from "@/lib/stores/dataStore";
-import { AnalysisSettings, RiskScore, RiskRegion } from "@/types/settings";
+} from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Slider } from '@/components/ui/slider';
+import { useDataStore } from '@/lib/stores/dataStore';
+import { useFormStore } from '@/lib/stores/formStore';
+import { useSettingsStore } from '@/lib/stores/settingsStore';
 
 const settingsSchema = z.object({
   riskScores: z
-    .array(z.enum(["frs", "ascvd", "mesa", "score2"]))
-    .min(1, "Select at least one risk score"),
-  riskRegion: z.enum(["Low", "Moderate", "High", "Very High"]),
+    .array(z.enum(['frs', 'ascvd', 'mesa', 'score2']))
+    .min(1, 'Select at least one risk score'),
+  riskRegion: z.enum(['Low', 'Moderate', 'High', 'Very High']),
   minScores: z.number().min(1).max(4),
-  cholesterolUnit: z.enum(["mmol/L", "mg/dL"]),
+  cholesterolUnit: z.enum(['mmol/L', 'mg/dL']),
   percentileThresholds: z.object({
     resilient: z.number(),
     reference_low: z.number(),
@@ -46,53 +46,54 @@ const settingsSchema = z.object({
 
 const riskScoreOptions = [
   {
-    id: "frs" as RiskScore,
-    label: "Framingham Risk Score (FRS)",
-    description: "Age range: 30-74 years",
+    id: 'frs' as RiskScore,
+    label: 'Framingham Risk Score (FRS)',
+    description: 'Age range: 30-74 years',
   },
   {
-    id: "ascvd" as RiskScore,
-    label: "ACC/AHA ASCVD",
-    description: "Age range: 20-79 years, requires ethnicity",
+    id: 'ascvd' as RiskScore,
+    label: 'ACC/AHA ASCVD',
+    description: 'Age range: 20-79 years, requires ethnicity',
   },
   {
-    id: "mesa" as RiskScore,
-    label: "MESA",
-    description: "Age range: 45-85 years, requires ethnicity",
+    id: 'mesa' as RiskScore,
+    label: 'MESA',
+    description: 'Age range: 45-85 years, requires ethnicity',
   },
   {
-    id: "score2" as RiskScore,
-    label: "SCORE2",
-    description: "Age range: 40-75 years, region-specific",
+    id: 'score2' as RiskScore,
+    label: 'SCORE2',
+    description: 'Age range: 40-75 years, region-specific',
   },
 ];
 
 const riskRegionOptions = [
   {
-    value: "Low" as RiskRegion,
-    label: "Low Risk",
-    description: "Low cardiovascular risk region",
+    value: 'Low' as RiskRegion,
+    label: 'Low Risk',
+    description: 'Low cardiovascular risk region',
   },
   {
-    value: "Moderate" as RiskRegion,
-    label: "Moderate Risk",
-    description: "Moderate cardiovascular risk region",
+    value: 'Moderate' as RiskRegion,
+    label: 'Moderate Risk',
+    description: 'Moderate cardiovascular risk region',
   },
   {
-    value: "High" as RiskRegion,
-    label: "High Risk",
-    description: "High cardiovascular risk region",
+    value: 'High' as RiskRegion,
+    label: 'High Risk',
+    description: 'High cardiovascular risk region',
   },
   {
-    value: "Very High" as RiskRegion,
-    label: "Very High Risk",
-    description: "Very high cardiovascular risk region",
+    value: 'Very High' as RiskRegion,
+    label: 'Very High Risk',
+    description: 'Very high cardiovascular risk region',
   },
 ];
 
 export function SettingsForm() {
   const { settings, updateSettings } = useSettingsStore();
-  const { nextStep, completeStep, previousStep, setCurrentStep } = useFormStore();
+  const { nextStep, completeStep, previousStep, setCurrentStep }
+    = useFormStore();
   const { hasEthnicityColumn } = useDataStore();
 
   const form = useForm<AnalysisSettings>({
@@ -100,8 +101,8 @@ export function SettingsForm() {
     defaultValues: settings,
   });
 
-  const watchedRiskScores = form.watch("riskScores");
-  const watchedMinScores = form.watch("minScores");
+  const watchedRiskScores = form.watch('riskScores');
+  const watchedMinScores = form.watch('minScores');
 
   const onSubmit = (data: AnalysisSettings) => {
     updateSettings(data);
@@ -110,13 +111,13 @@ export function SettingsForm() {
   };
 
   const handleRiskScoreChange = (riskScore: RiskScore, checked: boolean) => {
-    const currentScores = form.getValues("riskScores");
+    const currentScores = form.getValues('riskScores');
     if (checked) {
-      form.setValue("riskScores", [...currentScores, riskScore]);
+      form.setValue('riskScores', [...currentScores, riskScore]);
     } else {
       form.setValue(
-        "riskScores",
-        currentScores.filter((score) => score !== riskScore)
+        'riskScores',
+        currentScores.filter(score => score !== riskScore),
       );
     }
   };
@@ -162,32 +163,37 @@ export function SettingsForm() {
                   <FormItem>
                     <div className="space-y-4">
                       {riskScoreOptions.map((option) => {
-                        const requiresEthnicity = option.id === "ascvd" || option.id === "mesa";
-                        const isDisabled = requiresEthnicity && !hasEthnicityColumn;
-                        
+                        const requiresEthnicity
+                          = option.id === 'ascvd' || option.id === 'mesa';
+                        const isDisabled
+                          = requiresEthnicity && !hasEthnicityColumn;
+
                         return (
                           <FormField
                             key={option.id}
                             control={form.control}
                             name="riskScores"
                             render={({ field }) => (
-                              <FormItem className={`flex flex-row items-start space-x-3 space-y-0 ${isDisabled ? "opacity-50" : ""}`}>
+                              <FormItem
+                                className={`flex flex-row items-start space-x-3 space-y-0 ${isDisabled ? 'opacity-50' : ''}`}
+                              >
                                 <FormControl>
                                   <Checkbox
                                     checked={field.value?.includes(option.id)}
                                     disabled={isDisabled}
-                                    onCheckedChange={(checked) =>
+                                    onCheckedChange={checked =>
                                       handleRiskScoreChange(
                                         option.id,
-                                        checked as boolean
-                                      )
-                                    }
+                                        checked as boolean,
+                                      )}
                                   />
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
-                                  <FormLabel className={`text-sm font-medium ${isDisabled ? "text-muted-foreground" : ""}`}>
+                                  <FormLabel
+                                    className={`text-sm font-medium ${isDisabled ? 'text-muted-foreground' : ''}`}
+                                  >
                                     {option.label}
-                                    {isDisabled && " (requires ethnicity)"}
+                                    {isDisabled && ' (requires ethnicity)'}
                                   </FormLabel>
                                   <FormDescription className="text-xs">
                                     {option.description}
@@ -207,7 +213,7 @@ export function SettingsForm() {
           </Card>
 
           {/* SCORE2 Risk Region */}
-          {watchedRiskScores?.includes("score2") && (
+          {watchedRiskScores?.includes('score2') && (
             <Card>
               <CardHeader>
                 <CardTitle>SCORE2 Risk Region</CardTitle>
@@ -227,7 +233,7 @@ export function SettingsForm() {
                           defaultValue={field.value}
                           className="grid grid-cols-2 gap-4"
                         >
-                          {riskRegionOptions.map((option) => (
+                          {riskRegionOptions.map(option => (
                             <div
                               key={option.value}
                               className="flex items-center space-x-2"
@@ -313,7 +319,7 @@ export function SettingsForm() {
                             max={4}
                             step={1}
                             value={[field.value]}
-                            onValueChange={(value) => field.onChange(value[0])}
+                            onValueChange={value => field.onChange(value[0])}
                             className="flex-1"
                           />
                         </FormControl>
@@ -324,7 +330,10 @@ export function SettingsForm() {
                           {watchedMinScores}
                         </span>
                         <span className="text-sm text-muted-foreground ml-2">
-                          score{watchedMinScores !== 1 ? "s" : ""} required
+                          score
+                          {watchedMinScores !== 1 ? 's' : ''}
+                          {' '}
+                          required
                         </span>
                       </div>
                     </div>
@@ -337,7 +346,11 @@ export function SettingsForm() {
 
           {/* Navigation */}
           <div className="flex justify-between">
-            <Button type="button" variant="outline" onClick={handlePreviousStep}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePreviousStep}
+            >
               ← Previous
             </Button>
             <Button type="submit">Next →</Button>

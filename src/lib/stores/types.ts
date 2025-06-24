@@ -1,29 +1,29 @@
-import { UploadedFile, ColumnMapping, EthnicityMapping } from '@/types/data';
-import { AnalysisSettings } from '@/types/settings';
-import { AnalysisResult, AnalysisSummary, PlotData } from '@/types/analysis';
+import type { AnalysisResult, AnalysisSummary, PlotData } from '@/types/analysis';
+import type { ColumnMapping, EthnicityMapping, UploadedFile } from '@/types/data';
+import type { AnalysisSettings } from '@/types/settings';
 
-export interface FormState {
+export type FormState = {
   currentStep: number;
   completedSteps: Set<number>;
   isStepValid: (step: number) => boolean;
   canProceed: boolean;
-}
+};
 
-export interface DataState {
+export type DataState = {
   uploadedFile: UploadedFile | null;
   columnMappings: ColumnMapping;
   ethnicityMappings: EthnicityMapping;
   hasEthnicityColumn: boolean;
-}
+};
 
-export interface SettingsState {
+export type SettingsState = {
   settings: AnalysisSettings;
-}
+};
 
-export interface ResultsState {
+export type ResultsState = {
   results: AnalysisResult[] | null;
   plots: PlotData | null;
   summary: AnalysisSummary | null;
   isLoading: boolean;
   error: string | null;
-}
+};

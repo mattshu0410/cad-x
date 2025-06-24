@@ -1,6 +1,6 @@
 export type Classification = 'Resilient' | 'Reference' | 'Susceptible' | 'Other';
 
-export interface AnalysisResult {
+export type AnalysisResult = {
   subject_id?: string;
   original_data: Record<string, unknown>;
   risk_scores: {
@@ -12,9 +12,9 @@ export interface AnalysisResult {
   average_normalized_score: number;
   cacs_percentile: number;
   classification: Classification;
-}
+};
 
-export interface AnalysisSummary {
+export type AnalysisSummary = {
   n_total: number;
   n_complete: number;
   classifications: {
@@ -23,15 +23,15 @@ export interface AnalysisSummary {
     susceptible: number;
     other: number;
   };
-}
+};
 
-export interface PlotData {
+export type PlotData = {
   cacs_vs_risk: unknown; // Plotly JSON
   risk_distribution: unknown;
   percentile_distribution: unknown;
-}
+};
 
-export interface AnalysisResponse {
+export type AnalysisResponse = {
   success: boolean;
   data: {
     results: AnalysisResult[];
@@ -39,4 +39,4 @@ export interface AnalysisResponse {
     summary: AnalysisSummary;
   };
   error?: string;
-}
+};

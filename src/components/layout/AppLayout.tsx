@@ -1,15 +1,15 @@
 'use client';
 
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
 import { StepperNavigation } from './StepperNavigation';
 
-interface AppLayoutProps {
+type AppLayoutProps = {
   children: ReactNode;
   showStepper?: boolean;
-}
+};
 
 export function AppLayout({ children, showStepper = true }: AppLayoutProps) {
   return (

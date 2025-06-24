@@ -1,23 +1,24 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { useFileUpload } from "@/lib/queries/mutations";
-import { useDataStore } from "@/lib/stores/dataStore";
-import { useFormStore } from "@/lib/stores/formStore";
-import { parseFile } from "@/lib/utils/fileParser";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { useFileUpload } from '@/lib/queries/mutations';
+import { useDataStore } from '@/lib/stores/dataStore';
+import { useFormStore } from '@/lib/stores/formStore';
+import { parseFile } from '@/lib/utils/fileParser';
 
-const ACCEPTED_FILE_TYPES = [".csv", ".xlsx", ".xls"];
+const ACCEPTED_FILE_TYPES = ['.csv', '.xlsx', '.xls'];
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export function FileUploader() {
@@ -30,15 +31,15 @@ export function FileUploader() {
   const handleFile = useCallback(
     (file: File) => {
       // Validate file type
-      const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+      const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
       if (!ACCEPTED_FILE_TYPES.includes(fileExtension)) {
-        alert("Please upload a CSV or Excel file (.csv, .xlsx, .xls)");
+        toast.error('Please upload a CSV or Excel file (.csv, .xlsx, .xls)');
         return;
       }
 
       // Validate file size
       if (file.size > MAX_FILE_SIZE) {
-        alert("File size must be less than 50MB");
+        toast.error('File size must be less than 50MB');
         return;
       }
 
@@ -77,25 +78,25 @@ export function FileUploader() {
           } catch (error) {
             clearInterval(progressInterval);
             setUploadProgress(0);
-            alert("Failed to parse file: " + (error as Error).message);
+            toast.error(`Failed to parse file: ${(error as Error).message}`);
           }
         },
         onError: (error) => {
           clearInterval(progressInterval);
           setUploadProgress(0);
-          alert("Upload failed: " + error.message);
+          toast.error(`Upload failed: ${error.message}`);
         },
       });
     },
-    [uploadFile, setUploadedFile, completeStep, nextStep]
+    [uploadFile, setUploadedFile, completeStep, nextStep],
   );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   }, []);
@@ -110,7 +111,7 @@ export function FileUploader() {
         handleFile(e.dataTransfer.files[0]);
       }
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleInputChange = useCallback(
@@ -119,7 +120,7 @@ export function FileUploader() {
         handleFile(e.target.files[0]);
       }
     },
-    [handleFile]
+    [handleFile],
   );
 
   return (
@@ -136,8 +137,8 @@ export function FileUploader() {
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive
-                ? "border-primary bg-primary/5"
-                : "border-muted-foreground/25 hover:border-muted-foreground/50"
+                ? 'border-primary bg-primary/5'
+                : 'border-muted-foreground/25 hover:border-muted-foreground/50'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -149,18 +150,20 @@ export function FileUploader() {
               <div className="space-y-2">
                 <p className="text-lg font-medium">Drop your file here</p>
                 <p className="text-muted-foreground">
-                  or{" "}
+                  or
+                  {' '}
                   <Label
                     htmlFor="file-upload"
                     className="text-primary cursor-pointer hover:underline"
                   >
                     browse files
-                  </Label>{" "}
+                  </Label>
+                  {' '}
                   to upload
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {ACCEPTED_FILE_TYPES.map((type) => (
+                {ACCEPTED_FILE_TYPES.map(type => (
                   <Badge key={type} variant="outline">
                     {type.toUpperCase()}
                   </Badge>
@@ -172,7 +175,7 @@ export function FileUploader() {
               id="file-upload"
               type="file"
               className="hidden"
-              accept={ACCEPTED_FILE_TYPES.join(",")}
+              accept={ACCEPTED_FILE_TYPES.join(',')}
               onChange={handleInputChange}
               disabled={isPending}
             />
@@ -183,7 +186,10 @@ export function FileUploader() {
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Uploading...</span>
-                <span>{uploadProgress}%</span>
+                <span>
+                  {uploadProgress}
+                  %
+                </span>
               </div>
               <Progress value={uploadProgress} />
             </div>

@@ -1,13 +1,13 @@
-import { useMutation } from '@tanstack/react-query';
-import { supabase, rApiClient } from '@/lib/api/client';
-import { useResultsStore } from '@/lib/stores/resultsStore';
-import { 
-  PrepareDataRequest, 
-  AnalyzeRequest, 
-  FileUploadResponse, 
-  PrepareDataResponse 
+import type {
+  AnalyzeRequest,
+  FileUploadResponse,
+  PrepareDataRequest,
+  PrepareDataResponse,
 } from './types';
-import { AnalysisResponse } from '@/types/analysis';
+import type { AnalysisResponse } from '@/types/analysis';
+import { useMutation } from '@tanstack/react-query';
+import { rApiClient, supabase } from '@/lib/api/client';
+import { useResultsStore } from '@/lib/stores/resultsStore';
 
 export const useFileUpload = () => {
   return useMutation({
@@ -20,7 +20,9 @@ export const useFileUpload = () => {
         .from('data-files')
         .upload(filePath, file);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       const { data } = supabase.storage
         .from('data-files')
@@ -28,7 +30,7 @@ export const useFileUpload = () => {
 
       return {
         url: data.publicUrl,
-        path: filePath
+        path: filePath,
       };
     },
   });
@@ -49,10 +51,10 @@ export const useAnalyze = () => {
     mutationFn: async (data: AnalyzeRequest): Promise<AnalysisResponse> => {
       setLoading(true);
       setError(null);
-      
+
       try {
         const response = await rApiClient.post<AnalysisResponse>('/api/analyze', data);
-        
+
         if (response.success) {
           setResults(response.data.results);
           setPlots(response.data.plots);
@@ -60,7 +62,7 @@ export const useAnalyze = () => {
         } else {
           setError(response.error || 'Analysis failed');
         }
-        
+
         return response;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';

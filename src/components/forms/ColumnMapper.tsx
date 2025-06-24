@@ -1,24 +1,18 @@
-"use client";
+'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useCallback } from "react";
+import type { ColumnMapping } from '@/types/data';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -26,15 +20,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useDataStore } from "@/lib/stores/dataStore";
-import { useFormStore } from "@/lib/stores/formStore";
+} from '@/components/ui/form';
 import {
-  requiredFields,
-  optionalFields,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useDataStore } from '@/lib/stores/dataStore';
+import { useFormStore } from '@/lib/stores/formStore';
+import {
   columnMappingSchema,
-} from "@/lib/validation/schemas";
-import { ColumnMapping } from "@/types/data";
+  optionalFields,
+  requiredFields,
+} from '@/lib/validation/schemas';
 
 export function ColumnMapper() {
   const {
@@ -55,30 +55,30 @@ export function ColumnMapper() {
   const getAutoSuggestedColumn = useCallback(
     (fieldKey: string) => {
       const suggestions = {
-        cacs: ["cacs", "cac", "calcium", "score"],
-        age: ["age", "years"],
-        gender: ["gender", "sex", "male", "female"],
+        cacs: ['cacs', 'cac', 'calcium', 'score'],
+        age: ['age', 'years'],
+        gender: ['gender', 'sex', 'male', 'female'],
         total_cholesterol: [
-          "total_chol",
-          "tc",
-          "cholesterol",
-          "total_cholesterol",
+          'total_chol',
+          'tc',
+          'cholesterol',
+          'total_cholesterol',
         ],
-        hdl_cholesterol: ["hdl", "hdl_chol", "hdl_cholesterol"],
-        systolic_bp: ["sbp", "systolic", "sys_bp", "systolic_bp"],
-        smoking_status: ["smoking", "smoker", "smoke"],
-        diabetes_status: ["diabetes", "dm", "diabetic"],
-        bp_medication: ["bp_med", "bp_medication", "antihypertensive"],
+        hdl_cholesterol: ['hdl', 'hdl_chol', 'hdl_cholesterol'],
+        systolic_bp: ['sbp', 'systolic', 'sys_bp', 'systolic_bp'],
+        smoking_status: ['smoking', 'smoker', 'smoke'],
+        diabetes_status: ['diabetes', 'dm', 'diabetic'],
+        bp_medication: ['bp_med', 'bp_medication', 'antihypertensive'],
       };
 
       const keywords = suggestions[fieldKey as keyof typeof suggestions] || [];
-      return uploadedFile?.columns.find((col) =>
-        keywords.some((keyword) =>
-          col.toLowerCase().includes(keyword.toLowerCase())
-        )
+      return uploadedFile?.columns.find(col =>
+        keywords.some(keyword =>
+          col.toLowerCase().includes(keyword.toLowerCase()),
+        ),
       );
     },
-    [uploadedFile]
+    [uploadedFile],
   );
 
   // Auto-populate form with suggested values when component mounts
@@ -91,7 +91,7 @@ export function ColumnMapper() {
         if (suggested) {
           suggestedMappings[field.key as keyof ColumnMapping] = suggested;
         } else {
-          suggestedMappings[field.key as keyof ColumnMapping] = "";
+          suggestedMappings[field.key as keyof ColumnMapping] = '';
         }
       });
 
@@ -127,8 +127,8 @@ export function ColumnMapper() {
     const subscription = form.watch((value) => {
       // Only save if we have some mappings
       if (
-        value &&
-        Object.keys(value).some((key) => value[key as keyof ColumnMapping])
+        value
+        && Object.keys(value).some(key => value[key as keyof ColumnMapping])
       ) {
         setColumnMappings(value as ColumnMapping);
       }
@@ -147,19 +147,21 @@ export function ColumnMapper() {
   }
 
   const onSubmit = (data: ColumnMapping) => {
-    console.warn("onSubmit called with data:", data);
+    console.warn('onSubmit called with data:', data);
     setColumnMappings(data);
-    console.warn("About to call completeStep(2)");
+    console.warn('About to call completeStep(2)');
     completeStep(2);
-    console.warn("About to call nextStep()");
+    console.warn('About to call nextStep()');
     nextStep();
-    console.warn("onSubmit finished");
+    console.warn('onSubmit finished');
   };
 
   const getFieldStatus = (fieldKey: string) => {
     const value = form.watch(fieldKey as keyof ColumnMapping);
-    if (!value || value === "") return "unmapped";
-    return "mapped";
+    if (!value || value === '') {
+      return 'unmapped';
+    }
+    return 'mapped';
   };
 
   return (
@@ -169,16 +171,31 @@ export function ColumnMapper() {
         <CardHeader>
           <CardTitle>Map Your Data Columns</CardTitle>
           <CardDescription>
-            Map columns from {uploadedFile.name} to required risk factors
+            Map columns from
+            {' '}
+            {uploadedFile.name}
+            {' '}
+            to required risk factors
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <span>File: {uploadedFile.name}</span>
+            <span>
+              File:
+              {uploadedFile.name}
+            </span>
             <span>•</span>
-            <span>{uploadedFile.columns.length} columns</span>
+            <span>
+              {uploadedFile.columns.length}
+              {' '}
+              columns
+            </span>
             <span>•</span>
-            <span>{(uploadedFile.size / 1024 / 1024).toFixed(1)} MB</span>
+            <span>
+              {(uploadedFile.size / 1024 / 1024).toFixed(1)}
+              {' '}
+              MB
+            </span>
           </div>
         </CardContent>
       </Card>
@@ -209,12 +226,12 @@ export function ColumnMapper() {
                           <div className="space-y-1">
                             <FormLabel className="flex items-center space-x-2">
                               <span>{field.label}</span>
-                              {status === "mapped" && (
+                              {status === 'mapped' && (
                                 <Badge variant="default" className="text-xs">
                                   ✓
                                 </Badge>
                               )}
-                              {status === "unmapped" && (
+                              {status === 'unmapped' && (
                                 <Badge
                                   variant="destructive"
                                   className="text-xs"
@@ -231,13 +248,13 @@ export function ColumnMapper() {
                           <FormControl>
                             <Select
                               onValueChange={formField.onChange}
-                              value={formField.value || ""}
+                              value={formField.value || ''}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select column" />
                               </SelectTrigger>
                               <SelectContent>
-                                {uploadedFile.columns.map((column) => (
+                                {uploadedFile.columns.map(column => (
                                   <SelectItem key={column} value={column}>
                                     {column}
                                   </SelectItem>
@@ -248,13 +265,20 @@ export function ColumnMapper() {
 
                           {suggested && (
                             <div className="text-xs text-muted-foreground">
-                              {formField.value === suggested ? (
-                                <span className="text-green-600 font-medium">
-                                  ✓ Auto-selected: {suggested}
-                                </span>
-                              ) : (
-                                <span>Suggested: {suggested}</span>
-                              )}
+                              {formField.value === suggested
+                                ? (
+                                    <span className="text-green-600 font-medium">
+                                      ✓ Auto-selected:
+                                      {' '}
+                                      {suggested}
+                                    </span>
+                                  )
+                                : (
+                                    <span>
+                                      Suggested:
+                                      {suggested}
+                                    </span>
+                                  )}
                             </div>
                           )}
                         </div>
@@ -291,7 +315,7 @@ export function ColumnMapper() {
                           <div className="space-y-1">
                             <FormLabel className="flex items-center space-x-2">
                               <span>{field.label}</span>
-                              {status === "mapped" && (
+                              {status === 'mapped' && (
                                 <Badge variant="default" className="text-xs">
                                   ✓
                                 </Badge>
@@ -305,13 +329,13 @@ export function ColumnMapper() {
                           <FormControl>
                             <Select
                               onValueChange={formField.onChange}
-                              value={formField.value || ""}
+                              value={formField.value || ''}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select column (optional)" />
                               </SelectTrigger>
                               <SelectContent>
-                                {uploadedFile.columns.map((column) => (
+                                {uploadedFile.columns.map(column => (
                                   <SelectItem key={column} value={column}>
                                     {column}
                                   </SelectItem>
@@ -322,13 +346,20 @@ export function ColumnMapper() {
 
                           {suggested && (
                             <div className="text-xs text-muted-foreground">
-                              {formField.value === suggested ? (
-                                <span className="text-green-600 font-medium">
-                                  ✓ Auto-selected: {suggested}
-                                </span>
-                              ) : (
-                                <span>Suggested: {suggested}</span>
-                              )}
+                              {formField.value === suggested
+                                ? (
+                                    <span className="text-green-600 font-medium">
+                                      ✓ Auto-selected:
+                                      {' '}
+                                      {suggested}
+                                    </span>
+                                  )
+                                : (
+                                    <span>
+                                      Suggested:
+                                      {suggested}
+                                    </span>
+                                  )}
                             </div>
                           )}
                         </div>

@@ -1,48 +1,48 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useFormStore } from "@/lib/stores/formStore";
+} from '@/components/ui/card';
+import { useFormStore } from '@/lib/stores/formStore';
 
 const features = [
   {
-    icon: "📊",
-    title: "Upload Data",
-    description: "Securely upload CSV/Excel files with cardiovascular data",
-    highlight: "Supports 50MB+ files",
+    icon: '📊',
+    title: 'Upload Data',
+    description: 'Securely upload CSV/Excel files with cardiovascular data',
+    highlight: 'Supports 50MB+ files',
   },
   {
-    icon: "🔗",
-    title: "Smart Mapping",
-    description: "AI-powered column mapping with intelligent suggestions",
-    highlight: "Auto-detection",
+    icon: '🔗',
+    title: 'Smart Mapping',
+    description: 'AI-powered column mapping with intelligent suggestions',
+    highlight: 'Auto-detection',
   },
   {
-    icon: "🧬",
-    title: "Advanced Analysis",
-    description: "Calculate resilience using FRS, ASCVD, MESA, and SCORE2",
-    highlight: "4 risk models",
+    icon: '🧬',
+    title: 'Advanced Analysis',
+    description: 'Calculate resilience using FRS, ASCVD, MESA, and SCORE2',
+    highlight: '4 risk models',
   },
   {
-    icon: "📈",
-    title: "Rich Visualizations",
-    description: "Interactive charts and comprehensive data export",
-    highlight: "Publication ready",
+    icon: '📈',
+    title: 'Rich Visualizations',
+    description: 'Interactive charts and comprehensive data export',
+    highlight: 'Publication ready',
   },
 ];
 
 const stats = [
-  { number: "10,000+", label: "Subjects Analyzed" },
-  { number: "4", label: "Risk Score Models" },
-  { number: "99.9%", label: "Analysis Accuracy" },
-  { number: "< 30s", label: "Processing Time" },
+  { number: '10,000+', label: 'Subjects Analyzed' },
+  { number: '4', label: 'Risk Score Models' },
+  { number: '99.9%', label: 'Analysis Accuracy' },
+  { number: '< 30s', label: 'Processing Time' },
 ];
 
 export function LandingPage() {
@@ -169,11 +169,11 @@ export function LandingPage() {
               <h3 className="text-xl font-semibold">Risk Score Models</h3>
               <div className="flex flex-wrap gap-2">
                 {[
-                  "Framingham Risk Score",
-                  "ACC/AHA ASCVD",
-                  "MESA",
-                  "SCORE2",
-                ].map((model) => (
+                  'Framingham Risk Score',
+                  'ACC/AHA ASCVD',
+                  'MESA',
+                  'SCORE2',
+                ].map(model => (
                   <Badge key={model} variant="secondary" className="px-3 py-1">
                     {model}
                   </Badge>
