@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { useSettingsStore } from "@/lib/stores/settingsStore";
 import { useFormStore } from "@/lib/stores/formStore";
+import { useDataStore } from "@/lib/stores/dataStore";
 import { AnalysisSettings, RiskScore, RiskRegion } from "@/types/settings";
 
 const settingsSchema = z.object({
@@ -91,7 +92,8 @@ const riskRegionOptions = [
 
 export function SettingsForm() {
   const { settings, updateSettings } = useSettingsStore();
-  const { nextStep, completeStep, previousStep } = useFormStore();
+  const { nextStep, completeStep, previousStep, setCurrentStep } = useFormStore();
+  const { hasEthnicityColumn } = useDataStore();
 
   const form = useForm<AnalysisSettings>({
     resolver: zodResolver(settingsSchema),
@@ -116,6 +118,16 @@ export function SettingsForm() {
         "riskScores",
         currentScores.filter((score) => score !== riskScore)
       );
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (hasEthnicityColumn) {
+      // If ethnicity column exists, go back to step 3 (EthnicityGrid)
+      previousStep();
+    } else {
+      // If no ethnicity column, skip step 3 and go back to step 2 (ColumnMapper)
+      setCurrentStep(2);
     }
   };
 
@@ -149,36 +161,43 @@ export function SettingsForm() {
                 render={() => (
                   <FormItem>
                     <div className="space-y-4">
-                      {riskScoreOptions.map((option) => (
-                        <FormField
-                          key={option.id}
-                          control={form.control}
-                          name="riskScores"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(option.id)}
-                                  onCheckedChange={(checked) =>
-                                    handleRiskScoreChange(
-                                      option.id,
-                                      checked as boolean
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel className="text-sm font-medium">
-                                  {option.label}
-                                </FormLabel>
-                                <FormDescription className="text-xs">
-                                  {option.description}
-                                </FormDescription>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
+                      {riskScoreOptions.map((option) => {
+                        const requiresEthnicity = option.id === "ascvd" || option.id === "mesa";
+                        const isDisabled = requiresEthnicity && !hasEthnicityColumn;
+                        
+                        return (
+                          <FormField
+                            key={option.id}
+                            control={form.control}
+                            name="riskScores"
+                            render={({ field }) => (
+                              <FormItem className={`flex flex-row items-start space-x-3 space-y-0 ${isDisabled ? "opacity-50" : ""}`}>
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(option.id)}
+                                    disabled={isDisabled}
+                                    onCheckedChange={(checked) =>
+                                      handleRiskScoreChange(
+                                        option.id,
+                                        checked as boolean
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                  <FormLabel className={`text-sm font-medium ${isDisabled ? "text-muted-foreground" : ""}`}>
+                                    {option.label}
+                                    {isDisabled && " (requires ethnicity)"}
+                                  </FormLabel>
+                                  <FormDescription className="text-xs">
+                                    {option.description}
+                                  </FormDescription>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                        );
+                      })}
                     </div>
                     <FormMessage />
                   </FormItem>
@@ -318,7 +337,7 @@ export function SettingsForm() {
 
           {/* Navigation */}
           <div className="flex justify-between">
-            <Button type="button" variant="outline" onClick={previousStep}>
+            <Button type="button" variant="outline" onClick={handlePreviousStep}>
               ← Previous
             </Button>
             <Button type="submit">Next →</Button>

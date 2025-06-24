@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -43,6 +43,7 @@ export function EthnicityGrid() {
   const { nextStep, completeStep, previousStep } = useFormStore();
   const [mappings, setMappings] = useState<EthnicityMapping>({});
   const [uniqueEthnicities, setUniqueEthnicities] = useState<string[]>([]);
+  const hasSkippedRef = useRef(false);
 
   useEffect(() => {
     if (uploadedFile && hasEthnicityColumn && columnMappings.ethnicity) {
@@ -72,11 +73,14 @@ export function EthnicityGrid() {
 
   // Skip this step if no ethnicity column is mapped
   useEffect(() => {
-    if (!hasEthnicityColumn) {
+    console.warn("hasEthnicityColumn changed to:", hasEthnicityColumn);
+    if (!hasEthnicityColumn && !hasSkippedRef.current) {
+      console.warn("no ethnicity column, completing step 3");
+      hasSkippedRef.current = true;
       completeStep(3);
       nextStep();
     }
-  }, [hasEthnicityColumn, completeStep, nextStep]);
+  }, [hasEthnicityColumn]);
 
   if (!hasEthnicityColumn) {
     return null;

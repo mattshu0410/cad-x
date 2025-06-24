@@ -37,12 +37,19 @@ import {
 import { ColumnMapping } from "@/types/data";
 
 export function ColumnMapper() {
-  const { uploadedFile, columnMappings, setColumnMappings } = useDataStore();
+  const {
+    uploadedFile,
+    columnMappings,
+    setColumnMappings,
+    autoSuggestionsApplied,
+    setAutoSuggestionsApplied,
+  } = useDataStore();
   const { nextStep, completeStep } = useFormStore();
 
   const form = useForm<ColumnMapping>({
     resolver: zodResolver(columnMappingSchema),
     defaultValues: columnMappings || {},
+    shouldUnregister: false,
   });
 
   const getAutoSuggestedColumn = useCallback(
@@ -76,34 +83,43 @@ export function ColumnMapper() {
 
   // Auto-populate form with suggested values when component mounts
   useEffect(() => {
-    if (uploadedFile && Object.keys(columnMappings).length === 0) {
+    if (uploadedFile && !autoSuggestionsApplied) {
       const allFields = [...requiredFields, ...optionalFields];
       const suggestedMappings: Partial<ColumnMapping> = {};
-
       allFields.forEach((field) => {
         const suggested = getAutoSuggestedColumn(field.key);
         if (suggested) {
           suggestedMappings[field.key as keyof ColumnMapping] = suggested;
+        } else {
+          suggestedMappings[field.key as keyof ColumnMapping] = "";
         }
       });
 
       // Only proceed if we have suggestions
       if (Object.keys(suggestedMappings).length > 0) {
         // Set the suggested values in the form
-        Object.entries(suggestedMappings).forEach(([key, value]) => {
-          form.setValue(key as keyof ColumnMapping, String(value));
-        });
+        setTimeout(() => {
+          Object.entries(suggestedMappings).forEach(([key, value]) => {
+            form.setValue(key as keyof ColumnMapping, String(value), {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: false,
+            });
+          });
+        }, 0);
 
-        // Immediately save to store so other components can access
-        setColumnMappings(suggestedMappings as ColumnMapping);
+        // Merge with existing empty mappings to ensure all fields are present
+        const completeMapping = { ...columnMappings, ...suggestedMappings };
+        setColumnMappings(completeMapping);
+        setAutoSuggestionsApplied(true);
       }
     }
   }, [
     uploadedFile,
-    columnMappings,
-    form,
+    autoSuggestionsApplied,
     getAutoSuggestedColumn,
     setColumnMappings,
+    setAutoSuggestionsApplied,
   ]);
 
   // Watch form changes and auto-save to store
@@ -131,14 +147,18 @@ export function ColumnMapper() {
   }
 
   const onSubmit = (data: ColumnMapping) => {
+    console.warn("onSubmit called with data:", data);
     setColumnMappings(data);
+    console.warn("About to call completeStep(2)");
     completeStep(2);
+    console.warn("About to call nextStep()");
     nextStep();
+    console.warn("onSubmit finished");
   };
 
   const getFieldStatus = (fieldKey: string) => {
     const value = form.watch(fieldKey as keyof ColumnMapping);
-    if (!value || value === "__none__") return "unmapped";
+    if (!value || value === "") return "unmapped";
     return "mapped";
   };
 
@@ -285,13 +305,12 @@ export function ColumnMapper() {
                           <FormControl>
                             <Select
                               onValueChange={formField.onChange}
-                              value={formField.value || "__none__"}
+                              value={formField.value || ""}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select column (optional)" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="__none__">None</SelectItem>
                                 {uploadedFile.columns.map((column) => (
                                   <SelectItem key={column} value={column}>
                                     {column}
@@ -307,9 +326,6 @@ export function ColumnMapper() {
                                 <span className="text-green-600 font-medium">
                                   ✓ Auto-selected: {suggested}
                                 </span>
-                              ) : formField.value &&
-                                formField.value !== "__none__" ? (
-                                <span>Suggested: {suggested}</span>
                               ) : (
                                 <span>Suggested: {suggested}</span>
                               )}
