@@ -141,8 +141,8 @@ graph LR
 - ReactGrid implementation for mapping interface
 - Dynamic grid based on unique ethnicity values in data
 - Columns for each risk score that uses ethnicity:
-  - ACC/AHA ASCVD (white, other, african-american)
-  - MESA (white, african-american, chinese, hispanic)
+  - ACC/AHA ASCVD (white, other, aa)
+  - MESA (white, aa, chinese, hispanic)
 
 **Interface Example:**
 
@@ -151,7 +151,7 @@ graph LR
 |---------------|---------------|-----------|
 | Caucasian     | white         | white     |
 | Asian         | other         | chinese   |
-| Black         | african-american | african-american |
+| Black         | aa | aa |
 | Hispanic      | other         | hispanic  |
 ```
 
@@ -375,7 +375,7 @@ interface AppState {
 }
 ```
 
-#### POST /api/analyze
+#### POST /api/analyse
 
 ```json
 {
@@ -513,7 +513,7 @@ Based on the web implementation needs:
 
 ### 12.1 User Adoption
 
-- Number of analyses completed
+- Number of Analyses completed
 - User retention rate
 - Time to complete analysis
 

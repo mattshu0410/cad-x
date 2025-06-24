@@ -31,8 +31,8 @@ export type RequiredField = {
 
 export type EthnicityMapping = {
   [ethnicityValue: string]: {
-    ascvd: 'white' | 'african-american' | 'other';
-    mesa: 'white' | 'african-american' | 'chinese' | 'hispanic';
+    ascvd: 'white' | 'aa' | 'other';
+    mesa: 'white' | 'aa' | 'chinese' | 'hispanic';
   };
 };
 

@@ -1,13 +1,10 @@
 import type {
-  AnalyzeRequest,
+  AnalyseRequest,
   FileUploadResponse,
-  PrepareDataRequest,
-  PrepareDataResponse,
 } from './types';
 import type { AnalysisResponse } from '@/types/analysis';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { rApiClient, supabase } from '@/lib/api/client';
-import { useResultsStore } from '@/lib/stores/resultsStore';
 
 export const useFileUpload = () => {
   return useMutation({
@@ -36,41 +33,24 @@ export const useFileUpload = () => {
   });
 };
 
-export const usePrepareData = () => {
+export const useAnalyse = () => {
   return useMutation({
-    mutationFn: async (data: PrepareDataRequest): Promise<PrepareDataResponse> => {
-      return rApiClient.post<PrepareDataResponse>('/api/prepare-data', data);
+    mutationFn: async (data: AnalyseRequest): Promise<AnalysisResponse> => {
+      const response = await rApiClient.post<AnalysisResponse>('/api/analyse', data);
+      return response;
     },
   });
 };
 
-export const useAnalyze = () => {
-  const { setResults, setPlots, setSummary, setLoading, setError } = useResultsStore();
-
-  return useMutation({
-    mutationFn: async (data: AnalyzeRequest): Promise<AnalysisResponse> => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await rApiClient.post<AnalysisResponse>('/api/analyze', data);
-
-        if (response.success) {
-          setResults(response.data.results);
-          setPlots(response.data.plots);
-          setSummary(response.data.summary);
-        } else {
-          setError(response.error || 'Analysis failed');
-        }
-
-        return response;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setError(errorMessage);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
+// Suspense query for analysis
+export const useAnalysisSuspenseQuery = (data: AnalyseRequest) => {
+  return useSuspenseQuery({
+    queryKey: ['analysis', data.file_url, data.settings],
+    queryFn: async (): Promise<AnalysisResponse> => {
+      const response = await rApiClient.post<AnalysisResponse>('/api/analyse', data);
+      return response;
     },
+    staleTime: Infinity, // Don't refetch once we have data
+    gcTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 };

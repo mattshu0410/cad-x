@@ -22,13 +22,13 @@ import { useFormStore } from '@/lib/stores/formStore';
 
 const ASCVD_OPTIONS = [
   { value: 'white', label: 'White' },
-  { value: 'african-american', label: 'African American' },
+  { value: 'aa', label: 'African American' },
   { value: 'other', label: 'Other' },
 ];
 
 const MESA_OPTIONS = [
   { value: 'white', label: 'White' },
-  { value: 'african-american', label: 'African American' },
+  { value: 'aa', label: 'African American' },
   { value: 'chinese', label: 'Chinese' },
   { value: 'hispanic', label: 'Hispanic' },
 ];
@@ -91,7 +91,7 @@ export function EthnicityGrid() {
       ...prev,
       [ethnicity]: {
         ...prev[ethnicity],
-        ascvd: value as 'white' | 'african-american' | 'other',
+        ascvd: value as 'white' | 'aa' | 'other',
       },
     }));
   };
@@ -101,7 +101,7 @@ export function EthnicityGrid() {
       ...prev,
       [ethnicity]: {
         ...prev[ethnicity],
-        mesa: value as 'white' | 'african-american' | 'chinese' | 'hispanic',
+        mesa: value as 'white' | 'aa' | 'chinese' | 'hispanic',
       },
     }));
   };

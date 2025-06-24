@@ -7,8 +7,10 @@ export type PrepareDataRequest = {
   id_column?: string;
 };
 
-export type AnalyzeRequest = {
-  prepared_data_id: string;
+export type AnalyseRequest = {
+  file_url: string;
+  column_mappings: ColumnMapping;
+  cholesterol_unit: 'mmol/L' | 'mg/dL';
   settings: {
     risk_scores: string[];
     risk_region: string;
@@ -30,8 +32,10 @@ export type FileUploadResponse = {
 
 export type PrepareDataResponse = {
   success: boolean;
-  prepared_data_id: string;
-  preview: Record<string, unknown>[];
+  prepared_data_id?: string;
+  n_rows?: number;
+  columns?: string[];
+  error?: string;
 };
 
 export type ApiError = {

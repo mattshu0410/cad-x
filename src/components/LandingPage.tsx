@@ -39,7 +39,7 @@ const features = [
 ];
 
 const stats = [
-  { number: '10,000+', label: 'Subjects Analyzed' },
+  { number: '10,000+', label: 'Subjects Analysed' },
   { number: '4', label: 'Risk Score Models' },
   { number: '99.9%', label: 'Analysis Accuracy' },
   { number: '< 30s', label: 'Processing Time' },

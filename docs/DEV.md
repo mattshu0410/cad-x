@@ -30,7 +30,7 @@ npm install -D @types/papaparse
 
 ```sql
 -- Tables schema
-CREATE TABLE analyses (
+CREATE TABLE Analyses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMP DEFAULT NOW(),
   file_url TEXT NOT NULL,
@@ -41,8 +41,8 @@ CREATE TABLE analyses (
   user_session_id TEXT
 );
 
-CREATE INDEX idx_analyses_session ON analyses(user_session_id);
-CREATE INDEX idx_analyses_created ON analyses(created_at);
+CREATE INDEX idx_Analyses_session ON Analyses(user_session_id);
+CREATE INDEX idx_Analyses_created ON Analyses(created_at);
 
 -- Storage buckets
 INSERT INTO storage.buckets (id, name, public)
@@ -135,7 +135,7 @@ function(file_url, column_mappings, cholesterol_unit = "mmol/L", id_column = NUL
 #* Run resilience analysis
 #* @param prepared_data_id ID of prepared data
 #* @param settings JSON object with analysis settings
-#* @post /analyze
+#* @post /Analyse
 function(prepared_data_id, settings) {
   tryCatch({
     # Load prepared data
@@ -515,7 +515,7 @@ export async function runAnalysis(params: {
   prepared_data_id: string;
   settings: any;
 }) {
-  const response = await fetch(`${API_URL}/analyze`, {
+  const response = await fetch(`${API_URL}/Analyse`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),
@@ -530,7 +530,7 @@ export async function runAnalysis(params: {
 
 export async function saveAnalysis(analysisId: string, results: any) {
   const { error } = await supabase
-    .from("analyses")
+    .from("Analyses")
     .update({ results, status: "completed" })
     .eq("id", analysisId);
 
@@ -804,7 +804,7 @@ export function reportError(error: Error, context?: any) {
 ### 6.1 Performance
 
 - Implement request queuing for R analysis
-- Add caching layer for repeated analyses
+- Add caching layer for repeated Analyses
 - Optimize file parsing with Web Workers
 - Use React.memo for expensive components
 

@@ -10,6 +10,7 @@ export type AnalysisResult = {
     score2?: number;
   };
   average_normalized_score: number;
+  cacs: number;
   cacs_percentile: number;
   classification: Classification;
 };

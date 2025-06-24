@@ -32,6 +32,15 @@
 - Loading states and progress indicators
 - Professional BioHEART branding
 
+### Results Display (Step 6)
+7. **Results View**: Complete with SummaryCards, ScatterPlot (log-transformed CACS), and paginated DataTable
+8. **React Query Suspense**: Proper loading states with error boundaries and retry functionality
+
+### R Package Integration ✅
+9. **R API Microservice**: Plumber API with single `/api/analyse` endpoint
+10. **BioHEARTResilience Package**: Pre-installed in Docker with `prepare_cohort_data()` and `resilience_analysis()`
+11. **Docker Configuration**: Ready for DigitalOcean deployment
+
 ## 📁 Current File Structure
 
 ```
@@ -50,16 +59,27 @@ src/
 │   │   ├── EthnicityGrid.tsx     ✅
 │   │   ├── SettingsForm.tsx      ✅
 │   │   └── ThresholdSelector.tsx ✅
-│   ├── ui/                   # 15+ Shadcn components
+│   ├── results/
+│   │   ├── ResultsViewSuspense.tsx  ✅ React Query Suspense
+│   │   ├── AnalysisErrorBoundary.tsx ✅ Error handling
+│   │   ├── LoadingResults.tsx       ✅ Suspense fallback
+│   │   ├── ResultsTable.tsx         ✅
+│   │   ├── ScatterPlot.tsx          ✅
+│   │   ├── SummaryCards.tsx         ✅
+│   │   ├── columns.tsx              ✅
+│   │   └── data-table.tsx           ✅
+│   ├── ui/                   # 16+ Shadcn components
 │   ├── LandingPage.tsx       ✅
 │   └── MultiStepForm.tsx     ✅
 ├── lib/
 │   ├── api/
 │   │   └── client.ts        # Supabase + R API clients
+│   ├── mocks/
+│   │   └── mockResults.ts   ✅ Test data generator
 │   ├── queries/
 │   │   ├── types.ts         # API request/response types
-│   │   ├── mutations.ts     # React Query mutations
-│   │   └── provider.tsx     # QueryClient provider
+│   │   ├── mutations.ts     # React Query mutations + Suspense query
+│   │   └── provider.tsx     # QueryClient with Suspense enabled
 │   ├── stores/
 │   │   ├── types.ts         # Store interfaces
 │   │   ├── formStore.ts     ✅
@@ -77,27 +97,29 @@ src/
     └── settings.ts          ✅
 ```
 
-## 🔄 Next Steps
-
-### 1. Results Display (Step 6)
-- [ ] Create ResultsTable with Tanstack Table
-- [ ] Add ScatterPlot with Recharts
-- [ ] Build SummaryCards component
-- [ ] Implement CSV export functionality
-
-### 2. R Microservice Integration
-- [ ] Set up R API endpoints
-- [ ] Connect analysis pipeline
-- [ ] Handle real data processing
-- [ ] Implement error handling
-
-### 3. Missing Dependencies
-```bash
-npm install recharts @tanstack/react-table
+**R API Structure:**
+```
+r-api/
+├── Dockerfile               ✅ DigitalOcean ready
+├── src/
+│   └── plumber.R           ✅ Single /api/analyse endpoint
+└── config/
 ```
 
-### 4. Production Readiness
-- [ ] Add loading states for analysis
-- [ ] Implement proper error boundaries
-- [ ] Add analytics tracking
+## 🔄 Next Steps
+
+### 1. Deployment Ready ✅
+- [x] R API microservice with Docker
+- [x] React Query Suspense integration
+- [x] Error boundaries with retry functionality
+- [x] Single API endpoint for complete analysis
+
+### 2. Minor Enhancements
+- [ ] CSV export functionality
+- [ ] Analytics tracking (PostHog)
 - [ ] Performance optimization for large datasets
+
+### 3. Production Deployment
+- [ ] Deploy R API to DigitalOcean
+- [ ] Set NEXT_PUBLIC_R_API_URL environment variable
+- [ ] Test end-to-end workflow

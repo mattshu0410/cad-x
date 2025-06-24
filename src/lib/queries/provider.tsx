@@ -14,6 +14,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
       queries: {
         staleTime: 60 * 1000, // 1 minute
         retry: 1,
+        // Note: suspense mode will be enabled per-query
       },
       mutations: {
         retry: 1,
