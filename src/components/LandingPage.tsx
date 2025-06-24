@@ -55,10 +55,10 @@ export function LandingPage() {
         <div className="text-center space-y-8">
           <div className="space-y-4">
             <Badge variant="secondary" className="text-sm px-4 py-2">
-              ✨ Powered by Advanced AI & Machine Learning
+              ✨ Powered by CAD Frontiers
             </Badge>
             <h1 className="text-5xl md:text-7xl font-heading font-bold bg-gradient-to-r from-primary via-accent to-secondary-action bg-clip-text text-transparent leading-tight">
-              BioHEART<br />Resilience Calculator
+              CAD-X Calculator
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Identify cardiovascular resilience patterns with precision. 

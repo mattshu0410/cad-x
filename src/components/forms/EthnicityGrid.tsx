@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ReactGrid, Column, Row, CellChange, Cell } from "@silevis/reactgrid";
-import "@silevis/reactgrid/styles.css";
 import {
   Card,
   CardContent,
@@ -11,32 +9,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDataStore } from "@/lib/stores/dataStore";
 import { useFormStore } from "@/lib/stores/formStore";
 import { EthnicityMapping } from "@/types/data";
 
-// Define option types for ReactGrid dropdowns
-type OptionType = {
-  label: string;
-  value: string;
-};
-
-interface DropdownCell extends Cell {
-  type: "dropdown";
-  selectedValue?: string;
-  values: OptionType[];
-  isDisabled?: boolean;
-  isOpen?: boolean;
-  inputValue?: string;
-}
-
-const ASCVD_OPTIONS: OptionType[] = [
+const ASCVD_OPTIONS = [
   { value: "white", label: "White" },
   { value: "african-american", label: "African American" },
   { value: "other", label: "Other" },
 ];
 
-const MESA_OPTIONS: OptionType[] = [
+const MESA_OPTIONS = [
   { value: "white", label: "White" },
   { value: "african-american", label: "African American" },
   { value: "chinese", label: "Chinese" },
@@ -53,8 +43,6 @@ export function EthnicityGrid() {
   const { nextStep, completeStep, previousStep } = useFormStore();
   const [mappings, setMappings] = useState<EthnicityMapping>({});
   const [uniqueEthnicities, setUniqueEthnicities] = useState<string[]>([]);
-  const [rows, setRows] = useState<Row[]>([]);
-  const [columns, setColumns] = useState<Column[]>([]);
 
   useEffect(() => {
     if (uploadedFile && hasEthnicityColumn && columnMappings.ethnicity) {
@@ -79,74 +67,8 @@ export function EthnicityGrid() {
         };
       });
       setMappings(initialMappings);
-
-      // Setup ReactGrid columns
-      const gridColumns: Column[] = [
-        { columnId: "ethnicity", width: 200 },
-        { columnId: "ascvd", width: 200 },
-        { columnId: "mesa", width: 200 },
-      ];
-      setColumns(gridColumns);
-
-      // Setup ReactGrid rows
-      const headerRow: Row = {
-        rowId: "header",
-        cells: [
-          { type: "header", text: "Your Data" },
-          { type: "header", text: "ACC/AHA ASCVD" },
-          { type: "header", text: "MESA" },
-        ],
-      };
-
-      const dataRows: Row[] = unique.map((ethnicity) => ({
-        rowId: ethnicity, // Use ethnicity as rowId for easier mapping
-        cells: [
-          { type: "text", text: ethnicity },
-          {
-            type: "dropdown",
-            selectedValue: initialMappings[ethnicity].ascvd,
-            values: ASCVD_OPTIONS,
-          } as DropdownCell,
-          {
-            type: "dropdown",
-            selectedValue: initialMappings[ethnicity].mesa,
-            values: MESA_OPTIONS,
-          } as DropdownCell,
-        ],
-      }));
-
-      setRows([headerRow, ...dataRows]);
     }
   }, [uploadedFile, hasEthnicityColumn, columnMappings]);
-
-  // Handle changes from ReactGrid
-  const handleChanges = (changes: CellChange[]) => {
-    changes.forEach((change) => {
-      if (change.type !== 'dropdown') return;
-      
-      const ethnicity = change.rowId as string;
-      const columnId = change.columnId as string;
-      const newValue = (change.newCell as DropdownCell).selectedValue;
-
-      if (columnId === "ascvd" && newValue) {
-        setMappings((prev) => ({
-          ...prev,
-          [ethnicity]: {
-            ...prev[ethnicity],
-            ascvd: newValue as 'white' | 'african-american' | 'other',
-          },
-        }));
-      } else if (columnId === "mesa" && newValue) {
-        setMappings((prev) => ({
-          ...prev,
-          [ethnicity]: {
-            ...prev[ethnicity],
-            mesa: newValue as 'white' | 'african-american' | 'chinese' | 'hispanic',
-          },
-        }));
-      }
-    });
-  };
 
   // Skip this step if no ethnicity column is mapped
   useEffect(() => {
@@ -159,6 +81,26 @@ export function EthnicityGrid() {
   if (!hasEthnicityColumn) {
     return null;
   }
+
+  const handleAscvdChange = (ethnicity: string, value: string) => {
+    setMappings((prev) => ({
+      ...prev,
+      [ethnicity]: {
+        ...prev[ethnicity],
+        ascvd: value as 'white' | 'african-american' | 'other',
+      },
+    }));
+  };
+
+  const handleMesaChange = (ethnicity: string, value: string) => {
+    setMappings((prev) => ({
+      ...prev,
+      [ethnicity]: {
+        ...prev[ethnicity],
+        mesa: value as 'white' | 'african-american' | 'chinese' | 'hispanic',
+      },
+    }));
+  };
 
   const handleNext = () => {
     setEthnicityMappings(mappings);
@@ -189,18 +131,66 @@ export function EthnicityGrid() {
         </CardContent>
       </Card>
 
-      {/* Mapping Grid */}
+      {/* Mapping Table */}
       <Card>
         <CardHeader>
           <CardTitle>Ethnicity Mappings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg overflow-hidden">
-            <ReactGrid
-              rows={rows}
-              columns={columns}
-              onCellsChanged={handleChanges}
-            />
+          <div className="space-y-4">
+            {/* Header Row */}
+            <div className="grid grid-cols-3 gap-4 p-4 bg-muted rounded-lg font-medium">
+              <div>Your Data</div>
+              <div>ACC/AHA ASCVD</div>
+              <div>MESA</div>
+            </div>
+
+            {/* Data Rows */}
+            {uniqueEthnicities.map((ethnicity) => (
+              <div 
+                key={ethnicity} 
+                className="grid grid-cols-3 gap-4 p-4 border rounded-lg items-center"
+              >
+                {/* Ethnicity Name */}
+                <div className="font-medium text-sm">
+                  {ethnicity}
+                </div>
+
+                {/* ASCVD Select */}
+                <Select
+                  value={mappings[ethnicity]?.ascvd || "other"}
+                  onValueChange={(value) => handleAscvdChange(ethnicity, value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ASCVD_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* MESA Select */}
+                <Select
+                  value={mappings[ethnicity]?.mesa || "white"}
+                  onValueChange={(value) => handleMesaChange(ethnicity, value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MESA_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
