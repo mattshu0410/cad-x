@@ -37,43 +37,46 @@ import {
 import { ColumnMapping } from "@/types/data";
 
 export function ColumnMapper() {
-  const { uploadedFile, setColumnMappings } = useDataStore();
+  const { uploadedFile, columnMappings, setColumnMappings } = useDataStore();
   const { nextStep, completeStep } = useFormStore();
 
   const form = useForm<ColumnMapping>({
     resolver: zodResolver(columnMappingSchema),
-    defaultValues: {},
+    defaultValues: columnMappings || {},
   });
 
-  const getAutoSuggestedColumn = useCallback((fieldKey: string) => {
-    const suggestions = {
-      cacs: ["cacs", "cac", "calcium", "score"],
-      age: ["age", "years"],
-      gender: ["gender", "sex", "male", "female"],
-      total_cholesterol: [
-        "total_chol",
-        "tc",
-        "cholesterol",
-        "total_cholesterol",
-      ],
-      hdl_cholesterol: ["hdl", "hdl_chol", "hdl_cholesterol"],
-      systolic_bp: ["sbp", "systolic", "sys_bp", "systolic_bp"],
-      smoking_status: ["smoking", "smoker", "smoke"],
-      diabetes_status: ["diabetes", "dm", "diabetic"],
-      bp_medication: ["bp_med", "bp_medication", "antihypertensive"],
-    };
+  const getAutoSuggestedColumn = useCallback(
+    (fieldKey: string) => {
+      const suggestions = {
+        cacs: ["cacs", "cac", "calcium", "score"],
+        age: ["age", "years"],
+        gender: ["gender", "sex", "male", "female"],
+        total_cholesterol: [
+          "total_chol",
+          "tc",
+          "cholesterol",
+          "total_cholesterol",
+        ],
+        hdl_cholesterol: ["hdl", "hdl_chol", "hdl_cholesterol"],
+        systolic_bp: ["sbp", "systolic", "sys_bp", "systolic_bp"],
+        smoking_status: ["smoking", "smoker", "smoke"],
+        diabetes_status: ["diabetes", "dm", "diabetic"],
+        bp_medication: ["bp_med", "bp_medication", "antihypertensive"],
+      };
 
-    const keywords = suggestions[fieldKey as keyof typeof suggestions] || [];
-    return uploadedFile?.columns.find((col) =>
-      keywords.some((keyword) =>
-        col.toLowerCase().includes(keyword.toLowerCase())
-      )
-    );
-  }, [uploadedFile]);
+      const keywords = suggestions[fieldKey as keyof typeof suggestions] || [];
+      return uploadedFile?.columns.find((col) =>
+        keywords.some((keyword) =>
+          col.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    },
+    [uploadedFile]
+  );
 
   // Auto-populate form with suggested values when component mounts
   useEffect(() => {
-    if (uploadedFile) {
+    if (uploadedFile && Object.keys(columnMappings).length === 0) {
       const allFields = [...requiredFields, ...optionalFields];
       const suggestedMappings: Partial<ColumnMapping> = {};
 
@@ -84,12 +87,38 @@ export function ColumnMapper() {
         }
       });
 
-      // Set the suggested values in the form
-      Object.entries(suggestedMappings).forEach(([key, value]) => {
-        form.setValue(key as keyof ColumnMapping, String(value));
-      });
+      // Only proceed if we have suggestions
+      if (Object.keys(suggestedMappings).length > 0) {
+        // Set the suggested values in the form
+        Object.entries(suggestedMappings).forEach(([key, value]) => {
+          form.setValue(key as keyof ColumnMapping, String(value));
+        });
+
+        // Immediately save to store so other components can access
+        setColumnMappings(suggestedMappings as ColumnMapping);
+      }
     }
-  }, [uploadedFile, form, getAutoSuggestedColumn]);
+  }, [
+    uploadedFile,
+    columnMappings,
+    form,
+    getAutoSuggestedColumn,
+    setColumnMappings,
+  ]);
+
+  // Watch form changes and auto-save to store
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      // Only save if we have some mappings
+      if (
+        value &&
+        Object.keys(value).some((key) => value[key as keyof ColumnMapping])
+      ) {
+        setColumnMappings(value as ColumnMapping);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, setColumnMappings]);
 
   if (!uploadedFile) {
     return (
@@ -112,7 +141,6 @@ export function ColumnMapper() {
     if (!value || value === "__none__") return "unmapped";
     return "mapped";
   };
-
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -198,9 +226,15 @@ export function ColumnMapper() {
                             </Select>
                           </FormControl>
 
-                          {suggested && !formField.value && (
+                          {suggested && (
                             <div className="text-xs text-muted-foreground">
-                              Suggested: {suggested}
+                              {formField.value === suggested ? (
+                                <span className="text-green-600 font-medium">
+                                  ✓ Auto-selected: {suggested}
+                                </span>
+                              ) : (
+                                <span>Suggested: {suggested}</span>
+                              )}
                             </div>
                           )}
                         </div>
@@ -267,9 +301,18 @@ export function ColumnMapper() {
                             </Select>
                           </FormControl>
 
-                          {suggested && !formField.value && (
+                          {suggested && (
                             <div className="text-xs text-muted-foreground">
-                              Suggested: {suggested}
+                              {formField.value === suggested ? (
+                                <span className="text-green-600 font-medium">
+                                  ✓ Auto-selected: {suggested}
+                                </span>
+                              ) : formField.value &&
+                                formField.value !== "__none__" ? (
+                                <span>Suggested: {suggested}</span>
+                              ) : (
+                                <span>Suggested: {suggested}</span>
+                              )}
                             </div>
                           )}
                         </div>

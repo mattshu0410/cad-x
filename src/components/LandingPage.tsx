@@ -1,42 +1,48 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useFormStore } from '@/lib/stores/formStore';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useFormStore } from "@/lib/stores/formStore";
 
 const features = [
   {
     icon: "📊",
     title: "Upload Data",
     description: "Securely upload CSV/Excel files with cardiovascular data",
-    highlight: "Supports 50MB+ files"
+    highlight: "Supports 50MB+ files",
   },
   {
     icon: "🔗",
-    title: "Smart Mapping", 
+    title: "Smart Mapping",
     description: "AI-powered column mapping with intelligent suggestions",
-    highlight: "Auto-detection"
+    highlight: "Auto-detection",
   },
   {
     icon: "🧬",
     title: "Advanced Analysis",
     description: "Calculate resilience using FRS, ASCVD, MESA, and SCORE2",
-    highlight: "4 risk models"
+    highlight: "4 risk models",
   },
   {
     icon: "📈",
     title: "Rich Visualizations",
     description: "Interactive charts and comprehensive data export",
-    highlight: "Publication ready"
-  }
+    highlight: "Publication ready",
+  },
 ];
 
 const stats = [
   { number: "10,000+", label: "Subjects Analyzed" },
   { number: "4", label: "Risk Score Models" },
   { number: "99.9%", label: "Analysis Accuracy" },
-  { number: "< 30s", label: "Processing Time" }
+  { number: "< 30s", label: "Processing Time" },
 ];
 
 export function LandingPage() {
@@ -50,32 +56,32 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-20">
-        
         {/* Hero Section */}
         <div className="text-center space-y-8">
           <div className="space-y-4">
             <Badge variant="secondary" className="text-sm px-4 py-2">
-              ✨ Powered by Advanced AI & Machine Learning
+              ✨ Powered by CAD Frontiers
             </Badge>
             <h1 className="text-5xl md:text-7xl font-heading font-bold bg-gradient-to-r from-primary via-accent to-secondary-action bg-clip-text text-transparent leading-tight">
-              BioHEART<br />Resilience Calculator
+              CAD-X Calculator
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Identify cardiovascular resilience patterns with precision. 
-              Transform your CACS data into actionable insights using cutting-edge risk assessment models.
+              Identify cardiovascular resilience patterns with precision.
+              Transform your CACS data into actionable insights using
+              cutting-edge risk assessment models.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
+            <Button
               onClick={handleStartAnalysis}
               size="lg"
               className="text-lg px-8 py-6 h-14 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-primary-action transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Start Analysis →
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="lg"
               className="text-lg px-8 py-6 h-14 border-2"
             >
@@ -87,8 +93,12 @@ export function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">{stat.number}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">
+                  {stat.number}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -101,13 +111,17 @@ export function LandingPage() {
               Powerful Features for Modern Research
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need for comprehensive cardiovascular resilience analysis in one intuitive platform
+              Everything you need for comprehensive cardiovascular resilience
+              analysis in one intuitive platform
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-card to-muted/30 hover:from-card hover:to-accent/5">
+              <Card
+                key={index}
+                className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-card to-muted/30 hover:from-card hover:to-accent/5"
+              >
                 <CardHeader className="text-center pb-4">
                   <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
@@ -139,20 +153,27 @@ export function LandingPage() {
                 Advanced Cardiovascular Analysis
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                The BioHEART Resilience package provides sophisticated analysis for identifying 
-                resilient and susceptible individuals based on their Coronary Artery Calcium Score (CACS) 
-                relative to traditional cardiovascular risk scores.
+                The BioHEART Resilience package provides sophisticated analysis
+                for identifying resilient and susceptible individuals based on
+                their Coronary Artery Calcium Score (CACS) relative to
+                traditional cardiovascular risk scores.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Our platform democratizes access to advanced analytics, making complex cardiovascular 
-                research accessible to researchers worldwide through an intuitive, guided interface.
+                Our platform democratizes access to advanced analytics, making
+                complex cardiovascular research accessible to researchers
+                worldwide through an intuitive, guided interface.
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Risk Score Models</h3>
               <div className="flex flex-wrap gap-2">
-                {['Framingham Risk Score', 'ACC/AHA ASCVD', 'MESA', 'SCORE2'].map((model) => (
+                {[
+                  "Framingham Risk Score",
+                  "ACC/AHA ASCVD",
+                  "MESA",
+                  "SCORE2",
+                ].map((model) => (
                   <Badge key={model} variant="secondary" className="px-3 py-1">
                     {model}
                   </Badge>
@@ -165,7 +186,8 @@ export function LandingPage() {
             <CardHeader>
               <CardTitle className="text-xl">Ready to get started?</CardTitle>
               <CardDescription className="text-base">
-                Upload your cardiovascular data and discover resilience patterns in minutes.
+                Upload your cardiovascular data and discover resilience patterns
+                in minutes.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -187,7 +209,7 @@ export function LandingPage() {
                   <span>Publication-ready results</span>
                 </div>
               </div>
-              <Button 
+              <Button
                 onClick={handleStartAnalysis}
                 className="w-full"
                 size="lg"
