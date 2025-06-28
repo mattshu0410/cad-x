@@ -27,6 +27,9 @@ RUN install2.r --error \
 # This happens during image build, so it won't reinstall every time the container runs
 RUN R -e "devtools::install_github('mattshu0410/BioHEARTResilience')"
 
+# Install CVrisk package from GitHub
+RUN R -e "devtools::install_github('pzhaonet/CVrisk')"
+
 # Create directory for your API files
 RUN mkdir -p /app/data
 
