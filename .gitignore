@@ -25,6 +25,7 @@
 *.pem
 .mcp.json
 .mcp.json
+bioheart-r-api.tar
 
 # debug
 npm-debug.log*

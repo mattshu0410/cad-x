@@ -15,6 +15,26 @@ library(BioHEARTResilience)  # Your package is already installed in the Docker i
 #* @apiDescription API for calculating cardiovascular resilience scores using BioHEARTResilience package
 #* @apiVersion 1.0.0
 
+#* @filter cors
+cors <- function(req, res) {
+  origin <- req$HTTP_ORIGIN
+  allowed_origins <- c("http://localhost:3000", "https://cadx.vercel.app")
+  
+  if (origin %in% allowed_origins) {
+    res$setHeader("Access-Control-Allow-Origin", origin)
+  }
+  
+  res$setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+  res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  
+  if (req$REQUEST_METHOD == "OPTIONS") {
+    res$status <- 200
+    return(list())
+  } else {
+    plumber::forward()
+  }
+}
+
 #* Health check endpoint
 #* @get /health
 function() {

@@ -19,7 +19,9 @@
       "mcp__browser-tools__getConsoleLogs",
       "Bash(tsc --noEmit)",
       "WebFetch(domain:nextjs.org)",
-      "Bash(npm run check-types:*)"
+      "Bash(npm run check-types:*)",
+      "mcp__browser-tools__takeScreenshot",
+      "mcp__browser-tools__getSelectedElement"
     ]
   },
   "enableAllProjectMcpServers": true,

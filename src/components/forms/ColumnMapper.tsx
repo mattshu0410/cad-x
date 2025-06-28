@@ -43,6 +43,7 @@ export function ColumnMapper() {
     setColumnMappings,
     autoSuggestionsApplied,
     setAutoSuggestionsApplied,
+    hasHeaders,
   } = useDataStore();
   const { nextStep, completeStep } = useFormStore();
 
@@ -81,9 +82,9 @@ export function ColumnMapper() {
     [uploadedFile],
   );
 
-  // Auto-populate form with suggested values when component mounts
+  // Auto-populate form with suggested values when component mounts (only if data has headers)
   useEffect(() => {
-    if (uploadedFile && !autoSuggestionsApplied) {
+    if (uploadedFile && !autoSuggestionsApplied && hasHeaders) {
       const allFields = [...requiredFields, ...optionalFields];
       const suggestedMappings: Partial<ColumnMapping> = {};
       allFields.forEach((field) => {
@@ -114,12 +115,18 @@ export function ColumnMapper() {
         setAutoSuggestionsApplied(true);
       }
     }
+
+    // If no headers, just mark auto-suggestions as applied to avoid re-running
+    if (uploadedFile && !autoSuggestionsApplied && !hasHeaders) {
+      setAutoSuggestionsApplied(true);
+    }
   }, [
     uploadedFile,
     autoSuggestionsApplied,
     getAutoSuggestedColumn,
     setColumnMappings,
     setAutoSuggestionsApplied,
+    hasHeaders,
   ]);
 
   // Watch form changes and auto-save to store
@@ -213,7 +220,7 @@ export function ColumnMapper() {
             <CardContent className="space-y-4">
               {requiredFields.map((field) => {
                 const status = getFieldStatus(field.key);
-                const suggested = getAutoSuggestedColumn(field.key);
+                const suggested = hasHeaders ? getAutoSuggestedColumn(field.key) : null;
 
                 return (
                   <FormField
@@ -263,24 +270,34 @@ export function ColumnMapper() {
                             </Select>
                           </FormControl>
 
-                          {suggested && (
-                            <div className="text-xs text-muted-foreground">
-                              {formField.value === suggested
-                                ? (
-                                    <span className="text-green-600 font-medium">
-                                      ✓ Auto-selected:
-                                      {' '}
-                                      {suggested}
-                                    </span>
-                                  )
-                                : (
-                                    <span>
-                                      Suggested:
-                                      {suggested}
-                                    </span>
-                                  )}
-                            </div>
-                          )}
+                          <div className="text-xs space-y-1">
+                            {suggested && (
+                              <div className="text-muted-foreground">
+                                {formField.value === suggested
+                                  ? (
+                                      <span className="text-green-600 font-medium">
+                                        ✓ Auto-selected:
+                                        {' '}
+                                        {suggested}
+                                      </span>
+                                    )
+                                  : (
+                                      <span>
+                                        Suggested:
+                                        {suggested}
+                                      </span>
+                                    )}
+                              </div>
+                            )}
+                            {formField.value && uploadedFile?.preview?.[0] && (
+                              <div className="text-muted-foreground">
+                                <span className="font-medium">Example: </span>
+                                <span className="bg-muted px-1 py-0.5 rounded text-xs">
+                                  {uploadedFile.preview[0][formField.value] != null ? String(uploadedFile.preview[0][formField.value]) : 'N/A'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <FormMessage />
                       </FormItem>
@@ -302,7 +319,7 @@ export function ColumnMapper() {
             <CardContent className="space-y-4">
               {optionalFields.map((field) => {
                 const status = getFieldStatus(field.key);
-                const suggested = getAutoSuggestedColumn(field.key);
+                const suggested = hasHeaders ? getAutoSuggestedColumn(field.key) : null;
 
                 return (
                   <FormField
@@ -344,24 +361,34 @@ export function ColumnMapper() {
                             </Select>
                           </FormControl>
 
-                          {suggested && (
-                            <div className="text-xs text-muted-foreground">
-                              {formField.value === suggested
-                                ? (
-                                    <span className="text-green-600 font-medium">
-                                      ✓ Auto-selected:
-                                      {' '}
-                                      {suggested}
-                                    </span>
-                                  )
-                                : (
-                                    <span>
-                                      Suggested:
-                                      {suggested}
-                                    </span>
-                                  )}
-                            </div>
-                          )}
+                          <div className="text-xs space-y-1">
+                            {suggested && (
+                              <div className="text-muted-foreground">
+                                {formField.value === suggested
+                                  ? (
+                                      <span className="text-green-600 font-medium">
+                                        ✓ Auto-selected:
+                                        {' '}
+                                        {suggested}
+                                      </span>
+                                    )
+                                  : (
+                                      <span>
+                                        Suggested:
+                                        {suggested}
+                                      </span>
+                                    )}
+                              </div>
+                            )}
+                            {formField.value && uploadedFile?.preview?.[0] && (
+                              <div className="text-muted-foreground">
+                                <span className="font-medium">Example: </span>
+                                <span className="bg-muted px-1 py-0.5 rounded text-xs">
+                                  {uploadedFile.preview[0][formField.value] != null ? String(uploadedFile.preview[0][formField.value]) : 'N/A'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <FormMessage />
                       </FormItem>

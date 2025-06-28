@@ -1,9 +1,10 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { useFormStore } from '@/lib/stores/formStore';
 import { cn } from '@/lib/utils';
+
 
 const steps = [
   { id: 1, label: 'Upload', description: 'Upload Data' },
@@ -17,56 +18,47 @@ const steps = [
 export function StepperNavigation() {
   const { currentStep, completedSteps } = useFormStore();
 
-  const progress = ((completedSteps.size) / steps.length) * 100;
-
   return (
     <div className="w-full">
-      {/* Progress Bar */}
-      <div className="mb-6">
-        <Progress value={progress} className="h-2" />
-      </div>
+      {/* Step Indicators with Integrated Progress */}
+      <div className="flex items-center justify-between relative">
+        {/* Background connector line that spans between all step markers */}
+        <div className="absolute top-4.5 left-5 right-5 h-1 bg-muted rounded-full" />
+        {/* Progress connector line that fills progressively between steps */}
+        <div
+          className="absolute top-4 left-5 h-2 bg-primary rounded-full transition-all duration-500"
+          style={{
+            width: `${Math.max(0, ((currentStep - 1) / (steps.length - 1)) * (100 - 8))}%`,
+          }}
+        />
 
-      {/* Step Indicators */}
-      <div className="flex items-center justify-between">
-        {steps.map((step, index) => {
+        {steps.map((step, _index) => {
           const isCompleted = completedSteps.has(step.id);
           const isCurrent = currentStep === step.id;
           const isAccessible = step.id <= currentStep || isCompleted;
 
           return (
-            <div key={step.id} className="flex flex-col items-center space-y-2">
+            <div key={step.id} className="flex flex-col items-center space-y-2 relative">
               {/* Step Circle */}
-              <div className="flex items-center">
-                <Badge
-                  variant={
-                    isCompleted
-                      ? 'default'
-                      : isCurrent
-                        ? 'secondary'
-                        : 'outline'
-                  }
-                  className={cn(
-                    'h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium',
-                    {
-                      'bg-primary text-primary-foreground': isCompleted,
-                      'bg-accent text-accent-foreground border-accent': isCurrent,
-                      'bg-muted text-muted-foreground': !isAccessible && !isCurrent,
-                    },
-                  )}
-                >
-                  {isCompleted ? '✓' : step.id}
-                </Badge>
-
-                {/* Connector Line */}
-                {index < steps.length - 1 && (
-                  <div
-                    className={cn(
-                      'h-0.5 w-12 ml-2',
-                      isCompleted ? 'bg-primary' : 'bg-muted',
-                    )}
-                  />
+              <Badge
+                variant={
+                  isCompleted
+                    ? 'default'
+                    : isCurrent
+                      ? 'secondary'
+                      : 'outline'
+                }
+                className={cn(
+                  'h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium bg-background border-2 z-10',
+                  {
+                    'bg-primary text-primary-foreground border-primary': isCompleted,
+                    'bg-accent text-accent-foreground border-accent': isCurrent,
+                    'bg-background text-muted-foreground border-muted': !isAccessible && !isCurrent,
+                  },
                 )}
-              </div>
+              >
+                {isCompleted ? <Check /> : step.id}
+              </Badge>
 
               {/* Step Label */}
               <div className="text-center">

@@ -7,7 +7,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // R Microservice client configuration
-const R_API_BASE_URL = process.env.NEXT_PUBLIC_R_API_URL || 'http://localhost:8000';
+const R_API_BASE_URL = process.env.NEXT_PUBLIC_R_API_URL!;
 
 class RApiClient {
   private baseUrl: string;

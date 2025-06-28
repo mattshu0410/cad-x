@@ -14,6 +14,7 @@ export type DataState = {
   columnMappings: ColumnMapping;
   ethnicityMappings: EthnicityMapping;
   hasEthnicityColumn: boolean;
+  hasHeaders: boolean;
 };
 
 export type SettingsState = {

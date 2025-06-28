@@ -120,6 +120,6 @@ r-api/
 - [ ] Performance optimization for large datasets
 
 ### 3. Production Deployment
-- [ ] Deploy R API to DigitalOcean
-- [ ] Set NEXT_PUBLIC_R_API_URL environment variable
+- [x] Deploy R API to DigitalOcean
+- [x] Set NEXT_PUBLIC_R_API_URL environment variable
 - [ ] Test end-to-end workflow

@@ -1,9 +1,9 @@
-# Start from the official plumber image (has R + plumber pre-installed)
-FROM rstudio/plumber
+# Use rocker instead of rstudio/plumber for better ARM64 support
+FROM rocker/r-ver:4.3.2
 
 # Add metadata
-LABEL org.opencontainers.image.authors="BioHEART Team"
-LABEL org.opencontainers.image.description="BioHEART Resilience Calculator API"
+LABEL org.opencontainers.image.authors="BioHEART"
+LABEL org.opencontainers.image.description="CAD-X"
 
 # Install system dependencies needed for your package
 RUN apt-get update && apt-get install -y \
@@ -13,8 +13,15 @@ RUN apt-get update && apt-get install -y \
     libgit2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install additional R packages needed by your API and the BioHEARTResilience package
-RUN R -e "install.packages(c('readr', 'readxl', 'dplyr', 'tidyr', 'httr', 'devtools'), repos='https://cloud.r-project.org/')"
+# Use install2.r for faster installation with RStudio Package Manager
+RUN install2.r --error \
+    plumber \
+    readr \
+    readxl \
+    dplyr \
+    tidyr \
+    httr \
+    devtools
 
 # Install your BioHEARTResilience package from GitHub
 # This happens during image build, so it won't reinstall every time the container runs
@@ -29,6 +36,5 @@ WORKDIR /app
 # Copy your plumber API file into the container
 COPY src/plumber.R /app/plumber.R
 
-# The default command - tells plumber which file to run
-# This inherits the ENTRYPOINT from rstudio/plumber which handles plumb() and run()
-CMD ["/app/plumber.R"]
+EXPOSE 8000
+CMD ["R", "-e", "plumber::plumb('/app/plumber.R')$run(host='0.0.0.0', port=8000)"]

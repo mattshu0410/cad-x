@@ -24,6 +24,7 @@ type DataStore = {
   setColumnMappings: (mappings: ColumnMapping) => void;
   setEthnicityMappings: (mappings: EthnicityMapping) => void;
   setAutoSuggestionsApplied: (applied: boolean) => void;
+  setHasHeaders: (hasHeaders: boolean) => void;
   clearData: () => void;
 } & DataState;
 
@@ -32,10 +33,11 @@ export const useDataStore = create<DataStore>(set => ({
   columnMappings: emptyColumnMapping,
   ethnicityMappings: {},
   hasEthnicityColumn: false,
+  hasHeaders: true,
   autoSuggestionsApplied: false,
 
   setUploadedFile: (file: UploadedFile) =>
-    set({ uploadedFile: file, autoSuggestionsApplied: false }),
+    set({ uploadedFile: file, hasHeaders: file.hasHeaders, autoSuggestionsApplied: false }),
 
   setColumnMappings: (mappings: ColumnMapping) => {
     console.warn('Store setColumnMappings called with:', mappings);
@@ -51,12 +53,16 @@ export const useDataStore = create<DataStore>(set => ({
   setAutoSuggestionsApplied: (applied: boolean) =>
     set({ autoSuggestionsApplied: applied }),
 
+  setHasHeaders: (hasHeaders: boolean) =>
+    set({ hasHeaders, autoSuggestionsApplied: false }),
+
   clearData: () =>
     set({
       uploadedFile: null,
       columnMappings: emptyColumnMapping,
       ethnicityMappings: {},
       hasEthnicityColumn: false,
+      hasHeaders: true,
       autoSuggestionsApplied: false,
     }),
 }));

@@ -4,6 +4,8 @@ export type UploadedFile = {
   columns: string[];
   preview: Record<string, unknown>[];
   size: number;
+  hasHeaders: boolean;
+  firstRowData: string[];
 };
 
 export type ColumnMapping = {
