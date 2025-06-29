@@ -1,5 +1,5 @@
 # Use rocker instead of rstudio/plumber for better ARM64 support
-FROM rocker/r-ver:4.3.2
+FROM rstudio/plumber
 
 # Add metadata
 LABEL org.opencontainers.image.authors="BioHEART"
@@ -16,19 +16,16 @@ RUN apt-get update && apt-get install -y \
 # Use install2.r for faster installation with RStudio Package Manager
 RUN install2.r --error \
     plumber \
-    readr \
     readxl \
-    dplyr \
-    tidyr \
     httr \
-    devtools
+    remotes
 
 # Install your BioHEARTResilience package from GitHub
 # This happens during image build, so it won't reinstall every time the container runs
-RUN R -e "devtools::install_github('mattshu0410/BioHEARTResilience')"
+RUN R -e "remotes::install_github('mattshu0410/BioHEARTResilience', force = TRUE)"
 
 # Install CVrisk package from GitHub
-RUN R -e "devtools::install_github('pzhaonet/CVrisk')"
+RUN R -e "remotes::install_github('vcastro/CVrisk')"
 
 # Create directory for your API files
 RUN mkdir -p /app/data
@@ -40,4 +37,4 @@ WORKDIR /app
 COPY src/plumber.R /app/plumber.R
 
 EXPOSE 8000
-CMD ["R", "-e", "plumber::plumb('/app/plumber.R')$run(host='0.0.0.0', port=8000)"]
+CMD ["/app/plumber.R"]

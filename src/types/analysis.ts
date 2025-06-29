@@ -2,7 +2,7 @@ export type Classification = 'Resilient' | 'Reference' | 'Susceptible' | 'Other'
 
 export type AnalysisResult = {
   subject_id?: string;
-  original_data: Record<string, unknown>;
+  original_data: Record<string, any>;
   risk_scores: {
     frs?: number;
     ascvd?: number;
@@ -36,7 +36,6 @@ export type AnalysisResponse = {
   success: boolean;
   data: {
     results: AnalysisResult[];
-    plots: PlotData;
     summary: AnalysisSummary;
   };
   error?: string;

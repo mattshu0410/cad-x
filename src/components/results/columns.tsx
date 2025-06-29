@@ -10,7 +10,14 @@ export const columns: ColumnDef<AnalysisResult>[] = [
   {
     accessorKey: 'subject_id',
     header: 'ID',
-    cell: ({ row }) => row.getValue('subject_id') || '-',
+    cell: ({ row }) => {
+      const value = row.getValue('subject_id');
+      // Check if subject_id is an empty object (when no ID column is uploaded)
+      if (typeof value === 'object' && value !== null && Object.keys(value).length === 0) {
+        return '-';
+      }
+      return value || '-';
+    },
   },
   {
     accessorKey: 'original_data.age',

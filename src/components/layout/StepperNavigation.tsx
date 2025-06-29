@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { useFormStore } from '@/lib/stores/formStore';
 import { cn } from '@/lib/utils';
 
-
 const steps = [
   { id: 1, label: 'Upload', description: 'Upload Data' },
   { id: 2, label: 'Map', description: 'Map Columns' },

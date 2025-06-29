@@ -1,4 +1,4 @@
-⏺ Step 2: Create DigitalOcean Droplet
+  Step 2: Create DigitalOcean Droplet
 
   1. Log into DigitalOcean and create a new Droplet:
     - Choose Docker from the Marketplace (pre-configured with Docker)
@@ -86,3 +86,12 @@
   4. Configure Nginx to proxy requests to your Docker container
 
   The basic deployment should now be working. Your R API will be accessible at http://YOUR_DROPLET_IP:8000/api/analyse.
+
+
+  Make sure you place the .tar file in a snap-accessible location ~/
+  docker stop $(docker ps -q)
+  docker system prune -a
+  docker load -i ~/bioheart-r-api.tar
+  
+
+  

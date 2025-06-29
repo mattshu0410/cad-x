@@ -137,11 +137,27 @@ export function DataTable<TData, TValue>({
                       key={row.id}
                       data-state={row.getIsSelected() && 'selected'}
                     >
-                      {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
+                      {row.getVisibleCells().map((cell) => {
+                        try {
+                          return (
+                            <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          );
+                        } catch (error) {
+                          console.error(`Error rendering cell for column: ${cell.column.id}`, {
+                            columnId: cell.column.id,
+                            cellValue: cell.getValue(),
+                            rowData: row.original,
+                            error,
+                          });
+                          return (
+                            <TableCell key={cell.id}>
+                              <span className="text-red-500">Error rendering cell</span>
+                            </TableCell>
+                          );
+                        }
+                      })}
                     </TableRow>
                   ))
                 )

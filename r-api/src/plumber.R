@@ -34,6 +34,7 @@ cors <- function(req, res) {
 
 #* Health check endpoint
 #* @get /health
+#* @serializer unboxedJSON
 function() {
   list(
     status = "ok",
@@ -49,6 +50,7 @@ function() {
 #* @param column_mappings:object Mapping of required columns
 #* @param cholesterol_unit:character Unit of cholesterol (mmol/L or mg/dL)
 #* @param settings:object Analysis settings
+#* @serializer unboxedJSON
 function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
   tryCatch(
     {
@@ -150,12 +152,12 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
 
       summary_stats <- list(
         n_total = nrow(results$final_data),
-        n_complete = sum(!is.na(results$final_data$average_normalized_score)),
+        n_complete = sum(!is.na(results$final_data$average_norm_score)),
         classifications = list(
-          resilient = as.numeric(classification_table["Resilient"] %||% 0),
-          reference = as.numeric(classification_table["Reference"] %||% 0),
-          susceptible = as.numeric(classification_table["Susceptible"] %||% 0),
-          other = as.numeric(classification_table["Other"] %||% 0)
+          resilient = as.numeric(classification_table["resilient"] %||% 0),
+          reference = as.numeric(classification_table["reference"] %||% 0),
+          susceptible = as.numeric(classification_table["susceptible"] %||% 0),
+          other = as.numeric(classification_table["other"] %||% 0)
         )
       )
 
@@ -169,19 +171,29 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
 
         # Extract risk scores (handle missing columns gracefully)
         risk_scores <- list()
-        if ("frs" %in% names(row)) risk_scores$frs <- if (!is.na(row$frs)) as.numeric(row$frs)[1] else NULL
-        if ("ascvd" %in% names(row)) risk_scores$ascvd <- if (!is.na(row$ascvd)) as.numeric(row$ascvd)[1] else NULL
-        if ("mesa" %in% names(row)) risk_scores$mesa <- if (!is.na(row$mesa)) as.numeric(row$mesa)[1] else NULL
-        if ("score2" %in% names(row)) risk_scores$score2 <- if (!is.na(row$score2)) as.numeric(row$score2)[1] else NULL
+        if ("frs" %in% names(row) && !is.na(row$frs[1])) risk_scores$frs <- as.numeric(row$frs[1])
+        if ("ascvd" %in% names(row) && !is.na(row$ascvd[1])) risk_scores$ascvd <- as.numeric(row$ascvd[1])
+        if ("mesa" %in% names(row) && !is.na(row$mesa[1])) risk_scores$mesa <- as.numeric(row$mesa[1])
+        if ("score2" %in% names(row) && !is.na(row$score2[1])) risk_scores$score2 <- as.numeric(row$score2[1])
 
         formatted_results[[i]] <- list(
-          subject_id = if ("subject_id" %in% names(row) && !is.na(row$subject_id)) as.character(row$subject_id)[1] else NULL,
-          original_data = lapply(row[!names(row) %in% c("subject_id", "frs", "ascvd", "mesa", "score2", "average_normalized_score", "cacs", "cacs_percentile", "classification")], function(x) if(length(x) > 0) x[1] else NULL),
+          subject_id = if ("id" %in% names(row) && !is.na(row$id[1])) as.character(row$id[1]) else NULL,
+          original_data = lapply(row[!names(row) %in% c("id", "frs", "ascvd", "mesa", "score2", "average_norm_score", "cacs", "cacs_percentile", "classification")], function(x) {
+            if (length(x) > 0 && !is.na(x[1])) {
+              if (is.numeric(x[1])) {
+                return(as.numeric(x[1]))
+              } else {
+                return(as.character(x[1]))
+              }
+            } else {
+              return(NULL)
+            }
+          }),
           risk_scores = risk_scores,
-          average_normalized_score = if (!is.na(row$average_normalized_score)) as.numeric(row$average_normalized_score)[1] else NULL,
-          cacs = if (!is.na(row$cacs)) as.numeric(row$cacs)[1] else NULL,
-          cacs_percentile = if (!is.na(row$cacs_percentile)) as.numeric(row$cacs_percentile)[1] else NULL,
-          classification = if (!is.na(row$classification)) as.character(row$classification)[1] else NULL
+          average_normalized_score = if (!is.na(row$average_norm_score[1])) as.numeric(row$average_norm_score[1]) else NULL,
+          cacs = if (!is.na(row$cacs[1])) as.numeric(row$cacs[1]) else NULL,
+          cacs_percentile = if (!is.na(row$cacs_percentile[1])) as.numeric(row$cacs_percentile[1]) else NULL,
+          classification = if (!is.na(row$classification[1])) as.character(row$classification[1]) else NULL
         )
       }
 

@@ -37,6 +37,7 @@ export const useAnalyse = () => {
   return useMutation({
     mutationFn: async (data: AnalyseRequest): Promise<AnalysisResponse> => {
       const response = await rApiClient.post<AnalysisResponse>('/api/analyse', data);
+      console.warn(response);
       return response;
     },
   });
@@ -48,9 +49,8 @@ export const useAnalysisSuspenseQuery = (data: AnalyseRequest) => {
     queryKey: ['analysis', data.file_url, data.settings],
     queryFn: async (): Promise<AnalysisResponse> => {
       const response = await rApiClient.post<AnalysisResponse>('/api/analyse', data);
+      console.warn(response);
       return response;
     },
-    staleTime: Infinity, // Don't refetch once we have data
-    gcTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 };

@@ -1,11 +1,14 @@
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 
 type ParsedFileData = {
   columns: string[];
   preview: Record<string, unknown>[];
   hasHeaders: boolean;
   firstRowData: string[];
+  sheetNames?: string[];
 };
+
 
 export async function parseFile(file: File, userHasHeaders?: boolean): Promise<ParsedFileData> {
   const fileExtension = file.name.split('.').pop()?.toLowerCase();
@@ -13,12 +16,23 @@ export async function parseFile(file: File, userHasHeaders?: boolean): Promise<P
   if (fileExtension === 'csv') {
     return parseCSV(file, userHasHeaders);
   } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
-    return parseExcel();
+    return getExcelSheetNames(file);
   } else {
     throw new Error(
       'Unsupported file format. Please upload CSV or Excel files.',
     );
   }
+}
+
+export async function parseExcelSheet(file: File, sheetName: string, userHasHeaders?: boolean): Promise<ParsedFileData> {
+  // Convert Excel sheet to CSV data and parse using existing CSV logic
+  const csvContent = await convertExcelSheetToCSV(file, sheetName);
+  const csvFile = new File([csvContent], 'converted.csv', { type: 'text/csv' });
+  return parseCSV(csvFile, userHasHeaders);
+}
+
+export async function getExcelSheetAsCSV(file: File, sheetName: string): Promise<string> {
+  return convertExcelSheetToCSV(file, sheetName);
 }
 
 function detectHeaders(firstRow: string[]): boolean {
@@ -127,10 +141,72 @@ async function parseCSV(file: File, userHasHeaders?: boolean): Promise<ParsedFil
   });
 }
 
-async function parseExcel(): Promise<ParsedFileData> {
-  // For now, provide a fallback that suggests converting to CSV
-  // In production, you would use a library like xlsx to parse Excel files
-  throw new Error(
-    'Excel file parsing is not yet implemented. Please convert your file to CSV format and try again.',
-  );
+async function getExcelSheetNames(file: File): Promise<ParsedFileData> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        if (workbook.SheetNames.length === 0) {
+          reject(new Error('No sheets found in the Excel file.'));
+          return;
+        }
+        
+        resolve({
+          columns: [],
+          preview: [],
+          hasHeaders: false,
+          firstRowData: [],
+          sheetNames: workbook.SheetNames,
+        });
+      } catch (error) {
+        reject(new Error(`Failed to read Excel file: ${(error as Error).message}`));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read the Excel file.'));
+    };
+    
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function convertExcelSheetToCSV(file: File, sheetName: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        if (!workbook.SheetNames.includes(sheetName)) {
+          reject(new Error(`Sheet "${sheetName}" not found in the workbook.`));
+          return;
+        }
+        
+        const worksheet = workbook.Sheets[sheetName];
+        const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+        
+        if (!csvContent.trim()) {
+          reject(new Error(`No data found in sheet "${sheetName}".`));
+          return;
+        }
+        
+        resolve(csvContent);
+      } catch (error) {
+        reject(new Error(`Failed to convert Excel sheet to CSV: ${(error as Error).message}`));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read the Excel file.'));
+    };
+    
+    reader.readAsArrayBuffer(file);
+  });
 }

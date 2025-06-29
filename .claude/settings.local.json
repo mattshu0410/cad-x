@@ -21,7 +21,9 @@
       "WebFetch(domain:nextjs.org)",
       "Bash(npm run check-types:*)",
       "mcp__browser-tools__takeScreenshot",
-      "mcp__browser-tools__getSelectedElement"
+      "mcp__browser-tools__getSelectedElement",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -14,11 +14,25 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useFileUpload } from '@/lib/queries/mutations';
 import { useDataStore } from '@/lib/stores/dataStore';
 import { useFormStore } from '@/lib/stores/formStore';
-import { parseFile } from '@/lib/utils/fileParser';
+import { getExcelSheetAsCSV, parseExcelSheet, parseFile } from '@/lib/utils/fileParser';
+
+// Helper function to convert CSV content to File
+const createCsvFile = (csvContent: string, originalFileName: string): File => {
+  const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+  const baseName = originalFileName.replace(/\.(xlsx|xls)$/i, '');
+  return new File([csvBlob], `${baseName}.csv`, { type: 'text/csv' });
+};
 
 const ACCEPTED_FILE_TYPES = ['.csv', '.xlsx', '.xls'];
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -26,8 +40,12 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 export function FileUploader() {
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showSheetSelection, setShowSheetSelection] = useState(false);
   const [showHeaderConfig, setShowHeaderConfig] = useState(false);
   const [tempFileData, setTempFileData] = useState<any>(null);
+  const [originalFile, setOriginalFile] = useState<File | null>(null);
+  const [selectedSheet, setSelectedSheet] = useState<string>('');
+  const [isProcessingSheet, setIsProcessingSheet] = useState(false);
   const { mutate: uploadFile, isPending } = useFileUpload();
   const { setUploadedFile, hasHeaders, setHasHeaders } = useDataStore();
   const { nextStep, completeStep } = useFormStore();
@@ -65,25 +83,42 @@ export function FileUploader() {
           setUploadProgress(90);
 
           try {
+            const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+
             // Parse file to extract columns and preview data
-            const { columns, preview, hasHeaders: detectedHeaders, firstRowData } = await parseFile(file);
+            const parseResult = await parseFile(file);
 
             setUploadProgress(100);
 
-            // Store temporary file data and show header configuration
-            setTempFileData({
-              name: file.name,
-              url: response.url,
-              columns,
-              preview,
-              size: file.size,
-              hasHeaders: detectedHeaders,
-              firstRowData,
-            });
+            // Store the original file for Excel sheet processing
+            setOriginalFile(file);
 
-            // Set the detected header state and show configuration
-            setHasHeaders(detectedHeaders);
-            setShowHeaderConfig(true);
+            // Handle Excel files - show sheet selection
+            if ((fileExtension === '.xlsx' || fileExtension === '.xls') && parseResult.sheetNames) {
+              setTempFileData({
+                name: file.name,
+                url: response.url,
+                size: file.size,
+                sheetNames: parseResult.sheetNames,
+              });
+              setShowSheetSelection(true);
+            } else {
+              // Handle CSV files - go directly to header configuration
+              const { columns, preview, hasHeaders: detectedHeaders, firstRowData } = parseResult;
+              setTempFileData({
+                name: file.name,
+                url: response.url,
+                columns,
+                preview,
+                size: file.size,
+                hasHeaders: detectedHeaders,
+                firstRowData,
+              });
+
+              // Set the detected header state and show configuration
+              setHasHeaders(detectedHeaders);
+              setShowHeaderConfig(true);
+            }
           } catch (error) {
             clearInterval(progressInterval);
             setUploadProgress(0);
@@ -168,10 +203,64 @@ export function FileUploader() {
     [handleFile],
   );
 
+  const handleSheetSelection = useCallback(async () => {
+    if (!originalFile || !selectedSheet) {
+      toast.error('Please select a sheet first.');
+      return;
+    }
+
+    setIsProcessingSheet(true);
+
+    try {
+      // Get CSV content from the selected Excel sheet
+      const csvContent = await getExcelSheetAsCSV(originalFile, selectedSheet);
+
+      // Create a CSV file from the content
+      const csvFile = createCsvFile(csvContent, originalFile.name);
+
+      // Upload the converted CSV file to Supabase
+      uploadFile(csvFile, {
+        onSuccess: async (response) => {
+          try {
+            // Parse the CSV file
+            const { columns, preview, hasHeaders: detectedHeaders, firstRowData } = await parseExcelSheet(originalFile, selectedSheet);
+
+            // Update temp file data with sheet-specific data and new CSV URL
+            setTempFileData((prev: any) => ({
+              ...prev,
+              name: csvFile.name,
+              url: response.url,
+              columns,
+              preview,
+              hasHeaders: detectedHeaders,
+              firstRowData,
+              selectedSheet,
+              size: csvFile.size,
+            }));
+
+            // Set the detected header state and show configuration
+            setHasHeaders(detectedHeaders);
+            setShowSheetSelection(false);
+            setShowHeaderConfig(true);
+          } catch (error) {
+            toast.error(`Failed to parse converted CSV: ${(error as Error).message}`);
+          }
+        },
+        onError: (error) => {
+          toast.error(`Failed to upload converted CSV: ${error.message}`);
+        },
+      });
+    } catch (error) {
+      toast.error(`Failed to convert sheet to CSV: ${(error as Error).message}`);
+    } finally {
+      setIsProcessingSheet(false);
+    }
+  }, [originalFile, selectedSheet, setHasHeaders, uploadFile]);
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Upload Area */}
-      {!showHeaderConfig && (
+      {!showSheetSelection && !showHeaderConfig && (
         <Card>
           <CardHeader>
             <CardTitle>Upload Your Data</CardTitle>
@@ -244,6 +333,45 @@ export function FileUploader() {
         </Card>
       )}
 
+      {/* Sheet Selection */}
+      {showSheetSelection && tempFileData && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Sheet</CardTitle>
+            <CardDescription>
+              Your Excel file contains multiple sheets. Please select which sheet to process.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="sheet-select">Available Sheets</Label>
+              <Select value={selectedSheet} onValueChange={setSelectedSheet}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a sheet..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {tempFileData.sheetNames?.map((sheetName: string) => (
+                    <SelectItem key={sheetName} value={sheetName}>
+                      {sheetName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleSheetSelection}
+                disabled={!selectedSheet || isProcessingSheet}
+                className="flex-1"
+              >
+                {isProcessingSheet ? 'Processing...' : 'Process Selected Sheet →'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header Configuration */}
       {showHeaderConfig && tempFileData && (
         <Card>
@@ -301,7 +429,7 @@ export function FileUploader() {
       )}
 
       {/* Best Practices */}
-      {!showHeaderConfig && (
+      {!showSheetSelection && !showHeaderConfig && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
