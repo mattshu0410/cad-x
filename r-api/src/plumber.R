@@ -4,10 +4,7 @@
 # Load required libraries
 library(plumber)
 library(jsonlite)
-library(readr)
 library(readxl)
-library(dplyr)
-library(tidyr)
 library(httr)
 library(BioHEARTResilience) # Your package is already installed in the Docker image
 
@@ -67,7 +64,7 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
 
       # Read data based on file type
       if (file_ext == "csv") {
-        raw_data <- read_csv(temp_file, show_col_types = FALSE)
+        raw_data <- read.csv(temp_file, stringsAsFactors = FALSE)
       } else if (file_ext %in% c("xlsx", "xls")) {
         raw_data <- read_excel(temp_file)
       } else {
