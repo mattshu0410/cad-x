@@ -217,7 +217,7 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
           missing_all = results$risk_summary$missing_all
         )
       }
-      
+
       # Safely extract ensemble_summary - check if it has a similar structure
       ensemble_sum <- NULL
       if (!is.null(results$ensemble_summary)) {
@@ -229,13 +229,16 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
             val <- results$ensemble_summary[[name]]
             if (is.numeric(val) || is.character(val) || is.logical(val)) {
               ensemble_sum[[name]] <- val
+            } else if (inherits(val, "table")) {
+              # Convert table objects to named numeric vectors for JSON serialization
+              ensemble_sum[[name]] <- setNames(as.numeric(val), names(val))
             } else if (is.list(val) || is.vector(val)) {
               ensemble_sum[[name]] <- as.list(val)
             }
           }
         }
       }
-      
+
       list(
         success = TRUE,
         data = list(
