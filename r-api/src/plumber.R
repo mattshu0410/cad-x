@@ -200,14 +200,50 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
         }
       }
 
+      # Safely extract risk_summary
+      risk_sum <- NULL
+      if (!is.null(results$risk_summary)) {
+        # Extract the attributes from risk_score_summary object
+        risk_sum <- list(
+          n_complete = results$risk_summary$n_complete,
+          n_all_complete = results$risk_summary$n_all_complete,
+          n_total = results$risk_summary$n_total,
+          coverage = results$risk_summary$coverage,
+          all_scores_coverage = results$risk_summary$all_scores_coverage,
+          score_columns = results$risk_summary$score_columns,
+          score_completeness = as.list(results$risk_summary$score_completeness),
+          score_coverage = as.list(results$risk_summary$score_coverage),
+          missing_any = results$risk_summary$missing_any,
+          missing_all = results$risk_summary$missing_all
+        )
+      }
+      
+      # Safely extract ensemble_summary - check if it has a similar structure
+      ensemble_sum <- NULL
+      if (!is.null(results$ensemble_summary)) {
+        # If it's a simple list or has basic attributes, extract them
+        if (is.list(results$ensemble_summary)) {
+          # Extract all numeric/character elements
+          ensemble_sum <- list()
+          for (name in names(results$ensemble_summary)) {
+            val <- results$ensemble_summary[[name]]
+            if (is.numeric(val) || is.character(val) || is.logical(val)) {
+              ensemble_sum[[name]] <- val
+            } else if (is.list(val) || is.vector(val)) {
+              ensemble_sum[[name]] <- as.list(val)
+            }
+          }
+        }
+      }
+      
       list(
         success = TRUE,
         data = list(
           results = as.data.frame(results$final_data), # Extract the final_data dataframe
           summary = summary_stats,
           model_diagnostics = model_diag,
-          risk_summary = results$risk_summary,
-          ensemble_summary = results$ensemble_summary
+          risk_summary = risk_sum,
+          ensemble_summary = ensemble_sum
         )
       )
     },
