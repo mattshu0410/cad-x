@@ -9,7 +9,6 @@ type ParsedFileData = {
   sheetNames?: string[];
 };
 
-
 export async function parseFile(file: File, userHasHeaders?: boolean): Promise<ParsedFileData> {
   const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
@@ -38,19 +37,27 @@ export async function getExcelSheetAsCSV(file: File, sheetName: string): Promise
 function detectHeaders(firstRow: string[]): boolean {
   // Simple heuristic: if more than half of the values are non-numeric strings
   // and don't look like typical data values, assume they're headers
-  const nonNumericCount = firstRow.filter(value => {
-    if (!value || typeof value !== 'string') return false;
+  const nonNumericCount = firstRow.filter((value) => {
+    if (!value || typeof value !== 'string') {
+      return false;
+    }
     // Check if it's a number
-    if (!isNaN(Number(value)) && value.trim() !== '') return false;
+    if (!Number.isNaN(Number(value)) && value.trim() !== '') {
+      return false;
+    }
     // Check if it looks like common data patterns (dates, yes/no, etc.)
     const lowerValue = value.toLowerCase().trim();
-    if (['yes', 'no', 'true', 'false', 'male', 'female', 'm', 'f'].includes(lowerValue)) return false;
+    if (['yes', 'no', 'true', 'false', 'male', 'female', 'm', 'f'].includes(lowerValue)) {
+      return false;
+    }
     // If it contains underscores or is camelCase, likely a column name
-    if (value.includes('_') || /^[a-z]+[A-Z]/.test(value)) return true;
+    if (value.includes('_') || /^[a-z]+[A-Z]/.test(value)) {
+      return true;
+    }
     // If it's a descriptive word/phrase, likely a header
-    return value.length > 1 && /^[a-zA-Z\s_]+$/.test(value);
+    return value.length > 1 && /^[a-z\s_]+$/i.test(value);
   }).length;
-  
+
   return nonNumericCount > firstRow.length * 0.5;
 }
 
@@ -82,7 +89,7 @@ async function parseCSV(file: File, userHasHeaders?: boolean): Promise<ParsedFil
         const rawData = rawResults.data as string[][];
         const firstRow = rawData[0];
         const hasHeaders = userHasHeaders !== undefined ? userHasHeaders : detectHeaders(firstRow);
-        
+
         // Now parse again with proper header setting
         Papa.parse(file, {
           header: hasHeaders,
@@ -105,7 +112,7 @@ async function parseCSV(file: File, userHasHeaders?: boolean): Promise<ParsedFil
 
             let columns: string[];
             let firstRowData: string[];
-            
+
             if (hasHeaders) {
               columns = Object.keys(results.data[0] as Record<string, unknown>);
               // First row data is the actual first data row (second row in file)
@@ -144,17 +151,17 @@ async function parseCSV(file: File, userHasHeaders?: boolean): Promise<ParsedFil
 async function getExcelSheetNames(file: File): Promise<ParsedFileData> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
-        
+
         if (workbook.SheetNames.length === 0) {
           reject(new Error('No sheets found in the Excel file.'));
           return;
         }
-        
+
         resolve({
           columns: [],
           preview: [],
@@ -166,11 +173,11 @@ async function getExcelSheetNames(file: File): Promise<ParsedFileData> {
         reject(new Error(`Failed to read Excel file: ${(error as Error).message}`));
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error('Failed to read the Excel file.'));
     };
-    
+
     reader.readAsArrayBuffer(file);
   });
 }
@@ -178,35 +185,35 @@ async function getExcelSheetNames(file: File): Promise<ParsedFileData> {
 async function convertExcelSheetToCSV(file: File, sheetName: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
-        
+
         if (!workbook.SheetNames.includes(sheetName)) {
           reject(new Error(`Sheet "${sheetName}" not found in the workbook.`));
           return;
         }
-        
+
         const worksheet = workbook.Sheets[sheetName];
         const csvContent = XLSX.utils.sheet_to_csv(worksheet);
-        
+
         if (!csvContent.trim()) {
           reject(new Error(`No data found in sheet "${sheetName}".`));
           return;
         }
-        
+
         resolve(csvContent);
       } catch (error) {
         reject(new Error(`Failed to convert Excel sheet to CSV: ${(error as Error).message}`));
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error('Failed to read the Excel file.'));
     };
-    
+
     reader.readAsArrayBuffer(file);
   });
 }
