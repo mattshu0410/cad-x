@@ -141,15 +141,16 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
       )
 
       # Step 6: Generate summary statistics
-      if ("classification" %in% names(results)) {
-        classification_table <- table(results$classification)
+      if ("classification" %in% names(results$final_data)) {
+        classification_counts <- table(results$final_data$classification)
+        classification_table <- setNames(as.numeric(classification_counts), names(classification_counts))
       } else {
-        classification_table <- c()
+        classification_table <- setNames(numeric(0), character(0))
       }
 
       summary_stats <- list(
-        n_total = nrow(results),
-        n_complete = sum(!is.na(results$ensemble_score) | !is.na(results$avg_normalized_score)),
+        n_total = nrow(results$final_data),
+        n_complete = sum(!is.na(results$final_data$average_normalized_score)),
         classifications = list(
           resilient = as.numeric(classification_table["Resilient"] %||% 0),
           reference = as.numeric(classification_table["Reference"] %||% 0),
@@ -158,95 +159,37 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
         )
       )
 
-      # Return results in format expected by frontend
-      # Extract only the final_data from results which contains the analysis output
+      # Prepare results data matching TypeScript AnalysisResult format
+      results_data <- results$final_data
 
-      # Extract only serializable parts from model diagnostics
-      model_diag <- NULL
-      if (!is.null(results$model_diagnostics)) {
-        # Extract fit statistics with proper numeric conversion
-        fit_stats <- NULL
-        if (!is.null(results$model_diagnostics$fit_statistics)) {
-          fs <- results$model_diagnostics$fit_statistics
-          fit_stats <- list(
-            log_likelihood = if (!is.null(fs$log_likelihood)) as.numeric(fs$log_likelihood) else NULL,
-            aic = if (!is.null(fs$aic)) as.numeric(fs$aic) else NULL,
-            bic = if (!is.null(fs$bic)) as.numeric(fs$bic) else NULL,
-            n_observations = if (!is.null(fs$n_observations)) as.numeric(fs$n_observations) else NULL,
-            theta = if (!is.null(fs$theta)) as.numeric(fs$theta) else NULL,
-            converged = if (!is.null(fs$converged)) fs$converged else NULL
-          )
-        }
+      # Convert to list of records matching AnalysisResult type
+      formatted_results <- list()
+      for (i in 1:nrow(results_data)) {
+        row <- results_data[i, ]
 
-        model_diag <- list(
-          fit_statistics = fit_stats,
-          predicted_observed_correlation = if (!is.null(results$model_diagnostics$predicted_observed_correlation)) {
-            as.numeric(results$model_diagnostics$predicted_observed_correlation)
-          } else {
-            NULL
-          }
+        # Extract risk scores (handle missing columns gracefully)
+        risk_scores <- list()
+        if ("frs" %in% names(row)) risk_scores$frs <- if (!is.na(row$frs)) as.numeric(row$frs)[1] else NULL
+        if ("ascvd" %in% names(row)) risk_scores$ascvd <- if (!is.na(row$ascvd)) as.numeric(row$ascvd)[1] else NULL
+        if ("mesa" %in% names(row)) risk_scores$mesa <- if (!is.na(row$mesa)) as.numeric(row$mesa)[1] else NULL
+        if ("score2" %in% names(row)) risk_scores$score2 <- if (!is.na(row$score2)) as.numeric(row$score2)[1] else NULL
+
+        formatted_results[[i]] <- list(
+          subject_id = if ("subject_id" %in% names(row) && !is.na(row$subject_id)) as.character(row$subject_id)[1] else NULL,
+          original_data = lapply(row[!names(row) %in% c("subject_id", "frs", "ascvd", "mesa", "score2", "average_normalized_score", "cacs", "cacs_percentile", "classification")], function(x) if(length(x) > 0) x[1] else NULL),
+          risk_scores = risk_scores,
+          average_normalized_score = if (!is.na(row$average_normalized_score)) as.numeric(row$average_normalized_score)[1] else NULL,
+          cacs = if (!is.na(row$cacs)) as.numeric(row$cacs)[1] else NULL,
+          cacs_percentile = if (!is.na(row$cacs_percentile)) as.numeric(row$cacs_percentile)[1] else NULL,
+          classification = if (!is.na(row$classification)) as.character(row$classification)[1] else NULL
         )
-
-        # Add percentile test results if available
-        if (!is.null(results$model_diagnostics$percentile_uniformity_test)) {
-          model_diag$percentile_uniformity_test <- list(
-            statistic = as.numeric(results$model_diagnostics$percentile_uniformity_test$statistic),
-            p_value = as.numeric(results$model_diagnostics$percentile_uniformity_test$p.value)
-          )
-        }
-
-        if (!is.null(results$model_diagnostics$percentile_summary)) {
-          model_diag$percentile_summary <- as.list(results$model_diagnostics$percentile_summary)
-        }
-      }
-
-      # Safely extract risk_summary
-      risk_sum <- NULL
-      if (!is.null(results$risk_summary)) {
-        # Extract the attributes from risk_score_summary object
-        risk_sum <- list(
-          n_complete = results$risk_summary$n_complete,
-          n_all_complete = results$risk_summary$n_all_complete,
-          n_total = results$risk_summary$n_total,
-          coverage = results$risk_summary$coverage,
-          all_scores_coverage = results$risk_summary$all_scores_coverage,
-          score_columns = results$risk_summary$score_columns,
-          score_completeness = as.list(results$risk_summary$score_completeness),
-          score_coverage = as.list(results$risk_summary$score_coverage),
-          missing_any = results$risk_summary$missing_any,
-          missing_all = results$risk_summary$missing_all
-        )
-      }
-
-      # Safely extract ensemble_summary - check if it has a similar structure
-      ensemble_sum <- NULL
-      if (!is.null(results$ensemble_summary)) {
-        # If it's a simple list or has basic attributes, extract them
-        if (is.list(results$ensemble_summary)) {
-          # Extract all numeric/character elements
-          ensemble_sum <- list()
-          for (name in names(results$ensemble_summary)) {
-            val <- results$ensemble_summary[[name]]
-            if (is.numeric(val) || is.character(val) || is.logical(val)) {
-              ensemble_sum[[name]] <- val
-            } else if (inherits(val, "table")) {
-              # Convert table objects to named numeric vectors for JSON serialization
-              ensemble_sum[[name]] <- setNames(as.numeric(val), names(val))
-            } else if (is.list(val) || is.vector(val)) {
-              ensemble_sum[[name]] <- as.list(val)
-            }
-          }
-        }
       }
 
       list(
         success = TRUE,
         data = list(
-          results = as.data.frame(results$final_data), # Extract the final_data dataframe
-          summary = summary_stats,
-          model_diagnostics = model_diag,
-          risk_summary = risk_sum,
-          ensemble_summary = ensemble_sum
+          results = formatted_results,
+          summary = summary_stats
         )
       )
     },
