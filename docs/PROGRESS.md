@@ -19,7 +19,7 @@
 
 ### Multi-Step Form Application
 1. **Landing Page**: Modern design with gradient hero, stats, feature cards
-2. **File Upload**: Drag-drop with papaparse CSV parsing, progress tracking
+2. **File Upload**: Drag-drop with CSV/Excel support, Excel sheet selection, progress tracking
 3. **Column Mapping**: Smart form with auto-suggestions, fuzzy matching
 4. **Ethnicity Mapping**: ReactGrid with dropdown cells for risk score categories
 5. **Settings Form**: Risk score selection, SCORE2 regions, cholesterol units
@@ -33,11 +33,11 @@
 - Professional BioHEART branding
 
 ### Results Display (Step 6)
-7. **Results View**: Complete with SummaryCards, ScatterPlot (log-transformed CACS), and paginated DataTable
+7. **Results View**: Complete with SummaryCards, dual ScatterPlots (log + raw CACS), enhanced tooltips, paginated DataTable
 8. **React Query Suspense**: Proper loading states with error boundaries and retry functionality
 
 ### R Package Integration ✅
-9. **R API Microservice**: Plumber API with single `/api/analyse` endpoint
+9. **R API Microservice**: Plumber API with unboxedJSON serialization, proper scalar handling
 10. **BioHEARTResilience Package**: Pre-installed in Docker with `prepare_cohort_data()` and `resilience_analysis()`
 11. **Docker Configuration**: Ready for DigitalOcean deployment
 
@@ -88,7 +88,7 @@ src/
 │   │   └── resultsStore.ts  ✅
 │   ├── utils/
 │   │   ├── utils.ts         # cn() utility
-│   │   └── fileParser.ts    ✅ papaparse integration
+│   │   └── fileParser.ts    ✅ CSV/Excel parsing with xlsx support
 │   └── validation/
 │       └── schemas.ts       ✅ Zod schemas
 └── types/
@@ -106,20 +106,29 @@ r-api/
 └── config/
 ```
 
+## 🎉 Latest Updates
+
+### Recent Features Added ✅
+- **Excel File Support**: Full .xlsx/.xls processing with sheet selection UI
+- **Enhanced Visualizations**: Dual scatter plots (log + raw CACS) with semi-transparent fills and borders  
+- **Improved Tooltips**: Comprehensive patient data display with 12+ clinical variables
+- **R API Fixes**: Proper JSON serialization with unboxedJSON for scalar values
+- **Error Handling**: Better empty object handling in data tables
+
 ## 🔄 Next Steps
 
-### 1. Deployment Ready ✅
-- [x] R API microservice with Docker
-- [x] React Query Suspense integration
-- [x] Error boundaries with retry functionality
-- [x] Single API endpoint for complete analysis
+### 1. Production Ready ✅
+- [x] R API microservice with Docker  
+- [x] Excel/CSV file processing with sheet selection
+- [x] Enhanced data visualizations with professional styling
+- [x] Robust error handling and JSON serialization
 
 ### 2. Minor Enhancements
-- [ ] CSV export functionality
+- [ ] CSV export functionality for results
 - [ ] Analytics tracking (PostHog)
 - [ ] Performance optimization for large datasets
 
 ### 3. Production Deployment
 - [x] Deploy R API to DigitalOcean
 - [x] Set NEXT_PUBLIC_R_API_URL environment variable
-- [ ] Test end-to-end workflow
+- [ ] Test end-to-end workflow with Excel files

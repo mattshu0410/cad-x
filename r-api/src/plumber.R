@@ -15,9 +15,9 @@ library(BioHEARTResilience) # Your package is already installed in the Docker im
 #* @filter cors
 cors <- function(req, res) {
   origin <- req$HTTP_ORIGIN
-  allowed_origins <- c("http://localhost:3000", "https://cadx.vercel.app")
+  allowed_origins <- c("http://localhost:3000", "https://cad-x.vercel.app", "https://resilience.matthewshu.me")
 
-  if (origin %in% allowed_origins) {
+  if (!is.null(origin) && length(origin) > 0 && origin %in% allowed_origins) {
     res$setHeader("Access-Control-Allow-Origin", origin)
   }
 
