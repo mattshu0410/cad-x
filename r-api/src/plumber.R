@@ -164,9 +164,27 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
       # Extract only serializable parts from model diagnostics
       model_diag <- NULL
       if (!is.null(results$model_diagnostics)) {
+        # Extract fit statistics with proper numeric conversion
+        fit_stats <- NULL
+        if (!is.null(results$model_diagnostics$fit_statistics)) {
+          fs <- results$model_diagnostics$fit_statistics
+          fit_stats <- list(
+            log_likelihood = if (!is.null(fs$log_likelihood)) as.numeric(fs$log_likelihood) else NULL,
+            aic = if (!is.null(fs$aic)) as.numeric(fs$aic) else NULL,
+            bic = if (!is.null(fs$bic)) as.numeric(fs$bic) else NULL,
+            n_observations = if (!is.null(fs$n_observations)) as.numeric(fs$n_observations) else NULL,
+            theta = if (!is.null(fs$theta)) as.numeric(fs$theta) else NULL,
+            converged = if (!is.null(fs$converged)) fs$converged else NULL
+          )
+        }
+
         model_diag <- list(
-          fit_statistics = results$model_diagnostics$fit_statistics,
-          predicted_observed_correlation = results$model_diagnostics$predicted_observed_correlation
+          fit_statistics = fit_stats,
+          predicted_observed_correlation = if (!is.null(results$model_diagnostics$predicted_observed_correlation)) {
+            as.numeric(results$model_diagnostics$predicted_observed_correlation)
+          } else {
+            NULL
+          }
         )
 
         # Add percentile test results if available
