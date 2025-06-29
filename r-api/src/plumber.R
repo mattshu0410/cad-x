@@ -160,7 +160,7 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
 
       # Return results in format expected by frontend
       # Extract only the final_data from results which contains the analysis output
-      
+
       # Extract only serializable parts from model diagnostics
       model_diag <- NULL
       if (!is.null(results$model_diagnostics)) {
@@ -168,7 +168,7 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
           fit_statistics = results$model_diagnostics$fit_statistics,
           predicted_observed_correlation = results$model_diagnostics$predicted_observed_correlation
         )
-        
+
         # Add percentile test results if available
         if (!is.null(results$model_diagnostics$percentile_uniformity_test)) {
           model_diag$percentile_uniformity_test <- list(
@@ -176,12 +176,12 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
             p_value = as.numeric(results$model_diagnostics$percentile_uniformity_test$p.value)
           )
         }
-        
+
         if (!is.null(results$model_diagnostics$percentile_summary)) {
           model_diag$percentile_summary <- as.list(results$model_diagnostics$percentile_summary)
         }
       }
-      
+
       list(
         success = TRUE,
         data = list(
