@@ -162,11 +162,15 @@ function(req, file_url, column_mappings, cholesterol_unit = "mg/dL", settings) {
       )
 
       # Return results in format expected by frontend
+      # Extract only the final_data from results which contains the analysis output
       list(
         success = TRUE,
         data = list(
-          results = as.data.frame(results), # Ensure it's a data frame
-          summary = summary_stats
+          results = as.data.frame(results$final_data), # Extract the final_data dataframe
+          summary = summary_stats,
+          model_diagnostics = results$model_diagnostics,
+          risk_summary = results$risk_summary,
+          ensemble_summary = results$ensemble_summary
         )
       )
     },
